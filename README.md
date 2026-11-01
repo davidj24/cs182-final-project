@@ -59,7 +59,6 @@ configs/              experiment configs; a copy is saved alongside every run's 
 scripts/              standalone scripts (env check, plotting, checkpoint upload, ...)
 notebooks/            exploration only. Report figures come from scripts, not notebooks
 results/              small committed outputs: CSVs of metrics, final plots
-hw9_hardware_check/   HW9 Problem 4 (hardware check) code and hardware-results.csv
 report/               LaTeX proposal and report
 docs/ai_usage.md      running log of AI-tool use (required for the report appendix)
 ```
