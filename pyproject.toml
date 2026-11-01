@@ -1,0 +1,52 @@
+[project]
+name = "cs182-icl"
+version = "0.1.0"
+description = "CS 182 (Berkeley, Fall 2026) final project on in-context learning"
+readme = "README.md"
+# TODO: add all four team members
+authors = [
+    { name = "David Jo", email = "tkdave44@gmail.com" },
+]
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "einops>=0.8.2",
+    "matplotlib>=3.11.2",
+    "numpy>=2.5.4",
+    "pandas>=3.1.0",
+    "torch>=2.14.1,<2.15",  # same version for every teammate; bump together
+    "tqdm>=4.70.1",
+    "wandb>=0.31.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.11.28,<0.12.0"]
+build-backend = "uv_build"
+
+# Installed by default with `uv sync`.
+[dependency-groups]
+dev = [
+    "ipykernel>=7.4.0",
+    "jupyter>=1.1.1",
+]
+
+[tool.uv]
+# Platforms the lockfile is resolved for. If a teammate is on something else
+# (Intel Mac, Linux ARM, ...), add it here and re-run `uv lock`.
+environments = [
+    "sys_platform == 'linux' and platform_machine == 'x86_64'",
+    "sys_platform == 'win32' and platform_machine == 'AMD64'",
+    "sys_platform == 'darwin' and platform_machine == 'arm64'",
+]
+
+# PyTorch: CUDA 13.0 wheels on Linux/Windows. Requires NVIDIA driver >= 580;
+# supports Blackwell (RTX 50xx) and older GPUs. macOS uses the regular PyPI
+# wheels (MPS on Apple Silicon). See README "GPU / CUDA notes".
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cu130", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
+explicit = true

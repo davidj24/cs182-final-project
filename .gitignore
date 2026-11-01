@@ -1,0 +1,55 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+build/
+dist/
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# --- Environments / secrets ---
+.venv/
+venv/
+.env
+.env.*
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+
+# --- Data, runs and checkpoints (never committed; see README "Sharing checkpoints") ---
+data/
+checkpoints/
+wandb/
+runs/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+# --- LaTeX build files (report/) ---
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# --- Claude Code personal settings ---
+.claude/settings.local.json
+CLAUDE.local.md
