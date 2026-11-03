@@ -53,3 +53,10 @@ Thumbs.db
 # --- Claude Code personal settings ---
 .claude/settings.local.json
 CLAUDE.local.md
+
+# --- HW9 Hardware Benchmark ---
+hw9_hardware_check/hardware-cache/
+hw9_hardware_check/hardware-offload/
+hw9_hardware_check/hardware-results-logs/
+hw9_hardware_check/hardware-results.jsonl
+hw9_hardware_check/hardware-results.csv
