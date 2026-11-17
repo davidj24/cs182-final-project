@@ -1,17 +1,18 @@
-<!-- PROTOCOL 4 scene. Mass and inertia are placeholders; Simulator.set_cube overwrites them
-     (mass m, inertia m*s^2/6 per axis, s = 0.05) and calls mj_setConst. -->
-<!-- Deviation from MuJoCo defaults (not in PROTOCOL 4): solimp 0.99 0.999 0.001 on both geoms.
-     With default solimp the cube rests 0.108 mm below 0.025 m, outside the G1 settling tolerance
-     of 1e-4 m; with it the sag is 0.010 mm. See docs/handoffs/T01.md. -->
-<mujoco model="push_cube">
+<!-- IDEALIZED 1D TRANSLATIONAL PUSHER (PILOT_SPEC A4). One body, one x slide joint, no other DoF.
+     Horizontal friction is MuJoCo joint dry friction (frictionloss = mu*m*g, set per cube at runtime
+     by Simulator.set_cube; assumes N = m*g). Floor and cube box geoms are VISUAL ONLY: contype and
+     conaffinity are 0, so no contact is ever generated. Cube side 0.05 m (half-size 0.025).
+     Mass and inertia are placeholders; Simulator.set_cube overwrites them (inertia m*s^2/6) and
+     calls mj_setConst. -->
+<mujoco model="push_cube_1d">
   <compiler angle="degree"/>
-  <option timestep="0.001" integrator="implicitfast" cone="elliptic" impratio="10" gravity="0 0 -9.81"/>
+  <option timestep="0.001" integrator="implicitfast" gravity="0 0 -9.81"/>
   <worldbody>
-    <geom name="floor" type="plane" size="0 0 0.1" friction="0 0 0" condim="3" solimp="0.99 0.999 0.001"/>
+    <geom name="floor" type="plane" size="1 0.2 0.1" contype="0" conaffinity="0" rgba="0.8 0.8 0.8 1"/>
     <body name="cube" pos="0 0 0.025">
-      <freejoint name="cube_free"/>
+      <joint name="x" type="slide" axis="1 0 0" damping="0" frictionloss="0"/>
       <inertial pos="0 0 0" mass="1" diaginertia="0.000416667 0.000416667 0.000416667"/>
-      <geom name="cube_geom" type="box" size="0.025 0.025 0.025" friction="0.4 0.005 0.0001" condim="3" solimp="0.99 0.999 0.001"/>
+      <geom name="cube_geom" type="box" size="0.025 0.025 0.025" contype="0" conaffinity="0" rgba="0.2 0.4 0.8 1"/>
     </body>
   </worldbody>
 </mujoco>
