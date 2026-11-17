@@ -75,3 +75,12 @@ All 10:59 PM PT.
 - Notion project page: https://app.notion.com/p/CS182-Final-Project-40b830ccb89a804196aac3defc8a7f91
 - Ed #287 (deadlines, requirements, logistics): https://edstem.org/us/courses/104046/discussion/8451366
 - Ed #300 (ICL projects: meeting signup, HW9-P4, proposal draft): https://edstem.org/us/courses/104046/discussion/8459234
+
+## Agent workflow (push-dynamics experiments)
+
+<!-- Branch-local until teammates agree; remove these lines before merging to main. -->
+@AGENTS.md
+
+- For tasks touching more than 3 files, start in plan mode and wait for approval.
+- Keep context small: read the files your brief lists, grep before opening large files,
+  use head/tail on data and logs.
