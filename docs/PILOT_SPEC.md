@@ -29,7 +29,18 @@ and in configs/pilot/initial_e2e_2026_11_16.json (created by T00).
   counted and reported, never dropped. Only broken physics (friction, force timing, settling,
   mass/inertia) stops data generation. Target space is raw standardized; a log target is not
   adopted tonight (it may be reported as a diagnostic only).
-- Assumption A4 (user decision, 2026-11-16): the simulator scene is TRANSLATION-ONLY (rotation locked, no hopping), a deliberate deviation from the free-cube scene of PROTOCOL §4, because MuJoCo soft contact hops/tumbles a fast-sliding free cube (T01 review C1). Consequences: max_rotation_deg is recorded but vacuous; the sim-vs-analytic comparison tests friction/timing, not 3D contact, and must be described that way in SUMMARY.
+- Assumption A4 (user decision, 2026-11-16, supersedes the earlier translation-only-contact choice): the pilot simulator is an
+  EXPLICITLY IDEALIZED 1D TRANSLATIONAL model implemented in MuJoCo: an x slide joint with the cube's mass, MuJoCo dry joint
+  frictionloss = mu*m*g (assumes N = m*g), external push F for exactly k steps, floor/contact visual only. If frictionloss is
+  unsuitable, an explicit Coulomb friction force inside the MuJoCo stepping loop is used. Reason (finding for the meeting): realistic
+  MuJoCo contact under the attempted free-cube and constrained setups does not satisfy N = m*g (the cone solver raises N above m*g
+  whenever F > mu*N; free cube hops/tumbles; armature-1000 variant agrees only through contact chatter with N spikes ~100 m*g and
+  was rejected). The G1 contact-friction items are replaced by checks of the implemented ideal law (frictionloss readout = mu*m*g,
+  push acceleration (F - mu*m*g)/m, coast deceleration -mu*g, displacement vs closed form, T^2 scaling, force duration, dt
+  sensitivity, below-threshold stiction). max_rotation_deg is vacuous (0). The simulator is an implementation of the declared ideal
+  dynamics, NOT an independent validation of MuJoCo contact physics; SUMMARY must say so. Realistic contact is a later relaxation.
+  FALLBACK (user-authorized): if the third T01 repair cycle fails, stop simulator repair and generate pilot data directly from the
+  analytic closed form; no fourth cycle.
 - Assumption A3: dollar/agent spend cannot be measured and is NOT enforced; launches and GPU-hours are.
 
 ---
