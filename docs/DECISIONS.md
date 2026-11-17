@@ -17,7 +17,7 @@ Each entry: value | gate | date | evidence path under $CS282A_DATA.
 | r_model (relative discrepancy) | 9.5e-7 (R2: RMS(delta/f), f>=0.1 m, rounded up) | H2 | 2026-11-16 | gates/H2/attempt-01; reviews/T02/3c74ca1 |
 | tau_abs (absolute discrepancy, m) | 1e-4 (R2 floor; raw RMS 5.1e-7 m) | H2 | 2026-11-16 | gates/H2/attempt-01; reviews/T02/3c74ca1 |
 | Target space | raw standardized, clean MuJoCo target (frozen) | pilot | 2026-11-16 | PREAPPROVAL R5 |
-| Bayes grid | 400 x 400 (800 x 800 check) | H3 | | |
+| Bayes grid | base N=400 of an adaptive nested quadrature (inner affine-in-1/mu windows, outer Gauss-Legendre panels with zoom), NOT a plain 400x400 grid; N=800 and an independent brute force agree to 1.4e-8 / 2.0e-7 relative on 24 hard cases | H3 | 2026-11-16 | reviews/T03/e2b049c |
 | Training step budget | 150000 steps (~35 min at 71 steps/s measured on GPU 1, real data) | H5 | 2026-11-16 | runs/pilot_v1_smoke2k, logs/pilot_smoke2k.log |
 | Seeds | 0 only, noise 0 only (pilot) | pilot | 2026-11-16 | PREAPPROVAL R7 |
 | Accepted source commit for main runs | set before first long run | H7 | | |

@@ -1,5 +1,7 @@
 """Closed-form physics tests (GATES.md H0, PILOT_SPEC §F). All fast."""
 
+import math
+
 import numpy as np
 import pytest
 
@@ -108,7 +110,13 @@ def test_duration_and_action_T():
     assert Action(F=20.0, k=150).T == pytest.approx(0.15)
 
 
-def test_bayes_stub_returns_blocked_without_raising():
+def test_bayes_predict_never_raises_and_returns_valid_status():
+    # Updated after T03 Phase B: Bayes is now implemented (valid for the declared ideal dynamics only), so the old
+    # "must be blocked" assertion was obsolete. Bayes stays OPTIONAL: both statuses are acceptable, never an exception.
     obs = Observation(Action(20.0, 150), measurement_id=0, d_clean=1.0, d_obs=1.0)
     p = bayes_predict([obs], Action(18.0, 120))
-    assert p.status == "blocked" and p.d_pred is None and p.reason
+    assert p.status in {"ok", "blocked"}
+    if p.status == "ok":
+        assert p.d_pred is not None and math.isfinite(p.d_pred) and p.d_pred >= 0
+    else:
+        assert p.d_pred is None and p.reason
