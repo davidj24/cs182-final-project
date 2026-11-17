@@ -41,6 +41,7 @@ def main(argv=None) -> Path:
     ap.add_argument("--out-dir", help="new results dir; default: next $CS282A_DATA/results/vN")
     ap.add_argument("--experiments", default="e1,e2,e3,e4")
     ap.add_argument("--model-loader", help="module:function returning (model, norm); omit for references only")
+    ap.add_argument("--reuse-cache", action="append", default=[], help="earlier results/vN whose ref_cache is read (never written)")
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args(argv)
 
@@ -49,7 +50,7 @@ def main(argv=None) -> Path:
     var_d = train_d_variance(meta)
     out = Path(args.out_dir) if args.out_dir else next_results_version(os.environ["CS282A_DATA"])
     out.mkdir(parents=True, exist_ok=True)
-    cache = RefCache(out)
+    cache = RefCache(out, args.reuse_cache)
     preds = reference_predictors()
     bayes = bayes_predictor_or_none()
     if bayes is None:

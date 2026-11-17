@@ -29,7 +29,8 @@ def next_results_version(data_root: str | Path) -> Path:
 
 
 class RefCache:
-    def __init__(self, results_dir: str | Path):
+    def __init__(self, results_dir: str | Path, read_dirs: Sequence[str | Path] = ()):
+        self.read_dirs = [Path(d) / "ref_cache" for d in read_dirs]  # earlier versions, read-only
         self.dir = Path(results_dir) / "ref_cache"
         self.dir.mkdir(parents=True, exist_ok=True)
         self.hits = 0
@@ -43,6 +44,11 @@ class RefCache:
             return predict_all(predictor, cases)
         fp = fingerprint(cases)
         path = self._path(predictor, fp)
+        for d in self.read_dirs:
+            old = d / path.name
+            if old.exists():
+                path = old
+                break
         if path.exists():
             data = json.loads(path.read_text())
             if data["fingerprint"] != fp or len(data["preds"]) != len(cases):

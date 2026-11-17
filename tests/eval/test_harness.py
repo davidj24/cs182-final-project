@@ -123,6 +123,23 @@ def test_cache_reuse_and_no_overwrite(tmp_path):
     assert len(list((tmp_path / "ref_cache").glob("*.json"))) == 1
 
 
+def test_cache_reads_earlier_version(tmp_path):
+    calls = {"n": 0}
+
+    def fn(ctx, q):
+        calls["n"] += 1
+        return Prediction(0.5, "ok")
+
+    p = FunctionPredictor("f", fn, cache_key="v1", dedupe=False)
+    cases = prefix_cases(make_e1_rows(2), (0, 2))
+    RefCache(tmp_path / "v1").get_or_compute(p, cases)
+    n = calls["n"]
+    new = RefCache(tmp_path / "v2", [tmp_path / "v1"])
+    new.get_or_compute(p, cases)
+    assert calls["n"] == n and new.hits == 1
+    assert not list((tmp_path / "v2" / "ref_cache").glob("*.json"))
+
+
 def test_next_results_version(tmp_path):
     a = next_results_version(tmp_path)
     b = next_results_version(tmp_path)
