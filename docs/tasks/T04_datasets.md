@@ -1,4 +1,9 @@
 # T04: Datasets and test-set builders
+
+> PILOT OVERRIDE (docs/PILOT_SPEC.md wins over this brief on scope and counts): pilot sizes: train 1,000 cubes x 32 pushes (min 500), val 100 x 32, E1 100 items, E2 50, E3 50 (no-noise copies only), E4 50 heavy-OOD (m log-uniform [1.5,2.0]); no noisy variants, no other OOD sets. Disjoint cube ids, train-only normalization, generation seed + hashes stored.
+> Bayes is optional; never make your deliverable depend on it. Read docs/PILOT_SPEC.md first.
+> A plan (docs/plans/Txx.md, no code) is owned by this task if control asks for one.
+
 Worktree: data | Writer: Claude Sonnet (writer-sonnet) | Reviewer: fresh Claude Opus
 Reads: PROTOCOL §5-6, §9, DECISIONS | Gate: H4
 Needs: H2 decisions and merged sim, synced into this worktree.

@@ -1,7 +1,7 @@
 # Review prompt (used by the reviewer-opus subagent, or pasted into a fresh read-only Claude session)
 
 You are reviewing task <TXX> at commit <SHA> on branch <BRANCH> (base: soomi-integration).
-The writer has committed its handoff and stopped. Read docs/tasks/<TXX>*.md, the PROTOCOL
+The writer has committed its handoff and stopped. Read docs/PILOT_SPEC.md (pilot scope wins over full-campaign scope), docs/tasks/<TXX>*.md, the PROTOCOL
 sections it cites, docs/INTERFACES.md, docs/DECISIONS.md and docs/handoffs/<TXX>.md. Then run:
 
     git rev-parse HEAD            # must equal <SHA>; if not, stop and say so
@@ -27,5 +27,7 @@ Report format (max 60 lines, no praise, no style nits unless they hide a bug):
     Unresolved findings: <count by severity>
     Findings, ranked CRITICAL / MAJOR / MINOR, each with file:line, why it matters, concrete fix.
 
-The human saves the report to $CS282A_DATA/reviews/<TXX>/<SHA>/review.md. After the writer
-fixes CRITICAL and MAJOR items, review again; the human merges the final reviewed SHA.
+Control saves the report to $CS282A_DATA/reviews/<TXX>/<SHA>/review.md. After the writer
+fixes CRITICAL and MAJOR items, review again; control merges the final reviewed SHA only with zero unresolved CRITICAL or MAJOR findings.
+Also check: Bayes is treated as optional (nothing may depend on it), no invalid Bayes result is shown,
+simulation worker count <= 16, no clock/seeds/noise conditions beyond the pilot.

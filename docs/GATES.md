@@ -1,4 +1,12 @@
-# Human gates
+# Gates
+
+PILOT: for the meeting pilot, docs/AUTONOMY.md "Gate mapping for the pilot" and docs/PILOT_SPEC.md
+set which items are mandatory. Bayes-related items apply only if Bayes validity (PREAPPROVAL R1)
+passed; otherwise the Bayes reference is recorded as blocked and nothing downstream waits for it.
+
+With docs/PREAPPROVAL.md approved, the control session evaluates every gate against the thresholds
+below and PREAPPROVAL §B/§C (see docs/AUTONOMY.md); "YOU" means control, and items marked
+human-only are replaced as listed in PREAPPROVAL §C. Without approval, a human evaluates them.
 
 At each gate the agent prepares a packet in `$CS282A_DATA/gates/Hn/attempt-NN/`
 (README.md + figures + test output). A rerun gets a new attempt directory; never overwrite
@@ -93,8 +101,8 @@ Decide step budget -> DECISIONS.md. Pass -> merge exp/train.
 
 ## H6: Evaluation harness correctness (30 min)  [after T06; before any model exists]
 - [ ] tiny hand-calculated metric fixture (a few items, numbers computed by hand) passes
-- [ ] feeding Bayes predictions as the "model" reproduces the Bayes metrics exactly
-- [ ] NMSE denominator is training-prior Bayes c=0 on the same test set
+- [ ] if Bayes exists: feeding Bayes predictions as the "model" reproduces the Bayes metrics exactly (mandatory only then)
+- [ ] if Bayes exists: NMSE denominator is training-prior Bayes c=0 on the same test set; if not, NMSE and gap-to-Bayes are omitted and only physical-unit MSE and standardized MSE (denominator = training-set variance of d, stated in the CSV header) are reported
 - [ ] paired differences use shared items; prefix contexts paired across c
 - [ ] test items scored against the clean simulated target, never the noisy value
 Pass -> merge exp/eval (harness now exists on soomi-integration).
@@ -102,9 +110,9 @@ Pass -> merge exp/eval (harness now exists on soomi-integration).
 ## H7: First model end to end (30 min)  [no-noise model, seed 0, E1 only]
 Run from a clean `release` checkout of the accepted commit; record the SHA in DECISIONS.md.
 - [ ] training curves: no NaN, validation tracks training
-- [ ] 10 per-item predictions printed next to Bayes and oracle
+- [ ] ~10 per-item predictions printed next to the references that exist (Bayes only if valid; oracle, analytic, physics fit)
 - [ ] pilot findings (c=0 vs Bayes, error vs c) recorded as RESULTS, not tuned toward
-- [ ] you decide whether to spend compute on the other 5 runs
+- [ ] pilot: no other runs; the checkpoint is reused for E1-E4
 No agent changes the experiment to make a curve look right.
 
 ## H8: Main runs (5 min per check, async)

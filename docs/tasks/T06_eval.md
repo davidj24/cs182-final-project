@@ -1,4 +1,9 @@
 # T06: Evaluation harness, metrics, plots
+
+> PILOT OVERRIDE (docs/PILOT_SPEC.md wins over this brief on scope and counts): metrics: physical-unit MSE, standardized MSE (denominator = training-set variance of d), median relative error, displacement tertiles; NMSE/gap-to-Bayes only if Bayes is valid. Hand-calculated fixture and pairing/clean-target checks mandatory. Build E1 first, then E2, E3 (no-noise redundancy), E4 (heavy OOD, c=0,2,10).
+> Bayes is optional; never make your deliverable depend on it. Read docs/PILOT_SPEC.md first.
+> A plan (docs/plans/Txx.md, no code) is owned by this task if control asks for one.
+
 Worktree: eval | Writer: Claude Sonnet (harness), Claude Haiku (plot styling) | Reviewer: fresh Claude Opus
 Reads: PROTOCOL §9-11 | Gate: H6 (harness correctness, before any model exists)
 Owns: src/cs182_icl/eval/, tests/eval/, scripts/eval_*, scripts/plot_*, docs/handoffs/T06.md,

@@ -1,4 +1,9 @@
 # T00: Interfaces and skeleton
+
+> PILOT OVERRIDE (docs/PILOT_SPEC.md wins over this brief on scope and counts): minimal interfaces only (Cube, Action, Observation, PushResult, TestItem[condition]; analytic_displacement, simulate_push, bayes_predict, physics_fit_predict, model_predict stubs/signatures); also create configs/pilot/initial_e2e_2026_11_16.json with the PILOT_SPEC §C/§D values and sizes; no unused campaign infrastructure.
+> Bayes is optional; never make your deliverable depend on it. Read docs/PILOT_SPEC.md first.
+> A plan (docs/plans/Txx.md, no code) is owned by this task if control asks for one.
+
 Worktree: spec | Writer: Claude Opus, visible session (plan mode) | Reviewer: fresh Claude Opus (reviewer-opus)
 Reads: PROTOCOL §2-9 | Gate: H0
 Owns: docs/INTERFACES.md, pyproject.toml (dependency additions only), src/cs182_icl/**
