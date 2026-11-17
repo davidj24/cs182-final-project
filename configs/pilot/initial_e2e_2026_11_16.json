@@ -1,0 +1,101 @@
+{
+  "pilot_name": "initial_e2e_2026_11_16",
+  "config_version": 1,
+  "source": "docs/PILOT_SPEC.md (sections C, D, H1, J, K, L, M, N)",
+  "conditions": {
+    "training_noise_sigma_d": 0.0,
+    "measurement_noise_sigma_d": 0.0,
+    "training_seeds": [0],
+    "target": "clean MuJoCo displacement",
+    "target_space": "raw standardized displacement"
+  },
+  "physics": {
+    "g": 9.81,
+    "dt": 0.001,
+    "cube_side_m": 0.05
+  },
+  "training_distribution": {
+    "m": {"dist": "log-uniform", "low": 0.5, "high": 1.5, "unit": "kg"},
+    "mu": {"dist": "uniform", "low": 0.3, "high": 0.6},
+    "F": {"dist": "uniform", "low": 13.0, "high": 26.0, "unit": "N"},
+    "k": {"dist": "uniform-integer", "low": 100, "high": 200, "inclusive": true, "unit": "steps"},
+    "actions_independent_of_cube": true
+  },
+  "resources": {
+    "gpu_runs_concurrent": 1,
+    "gpu_budget_device_hours": 2.0,
+    "cpu_sim_workers_max": 16,
+    "new_outputs_max_gb": 10,
+    "worker_reviewer_launches_max": 24,
+    "repair_cycles_per_task_max": 2
+  },
+  "sizes": {
+    "train": {"cubes": 1000, "pushes_per_cube": 32},
+    "val": {"cubes": 100, "pushes_per_cube": 32, "fixed_examples": true},
+    "row_pushes": 11,
+    "row_tokens": 22,
+    "E1_items": 100,
+    "E2_items": 50,
+    "E3_items": 50,
+    "E4_items": 50,
+    "reduction_order": [
+      ["E4_items", 50, 30],
+      ["E3_items", 50, 30],
+      ["E2_items", 50, 30],
+      ["E1_items", 100, 50],
+      ["train.cubes", 1000, 500]
+    ],
+    "underpowered_floor": {"train_cubes": 500, "E1_items": 50}
+  },
+  "training": {
+    "architecture": "GPT-2 causal, 12 layers, n_embd 256, 8 heads (~9.5M params)",
+    "n_layer": 12,
+    "n_embd": 256,
+    "n_head": 8,
+    "max_seq_tokens": 22,
+    "optimizer": "AdamW",
+    "lr": 1e-4,
+    "weight_decay": 0.01,
+    "batch_size": 256,
+    "target_wallclock_minutes": [30, 45],
+    "warmup_fraction": 0.05,
+    "warmup_cap_steps": 2000,
+    "schedule": "cosine over the pilot step budget",
+    "step_budget": null,
+    "step_budget_note": "set after benchmark (H5, PREAPPROVAL R6)"
+  },
+  "E1": {
+    "context_pushes": 10,
+    "context_lengths": [0, 1, 2, 4, 8, 10],
+    "paired_prefixes": true
+  },
+  "E2": {
+    "query_F_range": [17.0, 22.0],
+    "query_k": "training duration distribution",
+    "new_force_min_separation_N": 3.0,
+    "cells": {
+      "A": {"context": "same-force", "query": "familiar-force", "context_lengths": [1, 2, 4]},
+      "B": {"context": "same-force", "query": "new-force", "context_lengths": [2, 4]},
+      "C": {"context": "distinct-force", "query": "familiar-force", "context_lengths": [2, 4]},
+      "D": {"context": "distinct-force", "query": "new-force", "context_lengths": [2, 4]}
+    },
+    "randomize_context_order": true
+  },
+  "E3": {
+    "base": "two distinct forces",
+    "base_min_force_separation_N": 6.0,
+    "query": "new-force",
+    "appended_copies": [0, 1, 2, 4],
+    "copy_keeps": ["action", "outcome", "measurement_id"],
+    "label": "Preliminary no-noise redundancy test. This does not test the benefit of independent noisy repeated measurements."
+  },
+  "E4": {
+    "ood_set": "heavy",
+    "m": {"dist": "log-uniform", "low": 1.5, "high": 2.0, "unit": "kg"},
+    "mu": "training range",
+    "context_lengths": [0, 2, 10],
+    "optional_E2_cell_D_at_c": 2,
+    "retrain": false,
+    "label": "preliminary heavy-OOD behavior"
+  }
+}

@@ -11,8 +11,10 @@ requires-python = ">=3.12,<3.13"
 dependencies = [
     "einops>=0.8.2",
     "matplotlib>=3.11.2",
+    "mujoco>=3.0",
     "numpy>=2.5.4",
     "pandas>=3.1.0",
+    "pytest>=8.0",
     "torch>=2.14.1,<2.15",  # same version for every teammate; bump together
     "tqdm>=4.70.1",
     "wandb>=0.31.0",
@@ -50,3 +52,9 @@ torch = [
 name = "pytorch-cu130"
 url = "https://download.pytorch.org/whl/cu130"
 explicit = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "slow: takes longer than a few seconds; excluded by `pytest -m \"not slow\"`",
+]

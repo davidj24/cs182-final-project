@@ -24,6 +24,9 @@ venv/
 
 # --- Data, runs and checkpoints (never committed; see README "Sharing checkpoints") ---
 data/
+# package/test directories named data/ are source code, not data (T00)
+!src/cs182_icl/data/
+!tests/data/
 checkpoints/
 wandb/
 runs/
