@@ -12,10 +12,10 @@ Each entry: value | gate | date | evidence path under $CS282A_DATA.
 | Training mu range | uniform [0.3, 0.6] (frozen for pilot, PILOT_SPEC §C) | pilot | 2026-11-16 | PILOT_SPEC.md | |
 | Force range | uniform [13, 26] N (frozen for pilot, PILOT_SPEC §C) | pilot | 2026-11-16 | PILOT_SPEC.md | |
 | Duration | k in {100..200}, dt = 0.001 s (frozen for pilot, PILOT_SPEC §C) | pilot | 2026-11-16 | PILOT_SPEC.md | |
-| Bayes forward model f | analytic (clipped) with discrepancy term IF R1 passes, else Bayes blocked; no table tonight | H2 | | gates/H2/ |
+| Bayes forward model f | analytic (clipped) with discrepancy term; R1 numerically PASSED (median rel 3.3e-7, p95 2.4e-6; dt-halving median 1.8e-7, p95 1.5e-6) but BY CONSTRUCTION (simulator implements the ideal law, A4): Bayes valid for the declared ideal dynamics only | H2 | 2026-11-16 | gates/H2/attempt-01; reviews/T02/3c74ca1 |
 | sigma_d (noisy condition) | not used in pilot (noise 0) | pilot | 2026-11-16 | PREAPPROVAL R4 |
-| r_model (relative discrepancy) | set at H2 | H2 | | |
-| tau_abs (absolute discrepancy, m) | set at H2 | H2 | | |
+| r_model (relative discrepancy) | 9.5e-7 (R2: RMS(delta/f), f>=0.1 m, rounded up) | H2 | 2026-11-16 | gates/H2/attempt-01; reviews/T02/3c74ca1 |
+| tau_abs (absolute discrepancy, m) | 1e-4 (R2 floor; raw RMS 5.1e-7 m) | H2 | 2026-11-16 | gates/H2/attempt-01; reviews/T02/3c74ca1 |
 | Target space | raw standardized, clean MuJoCo target (frozen) | pilot | 2026-11-16 | PREAPPROVAL R5 |
 | Bayes grid | 400 x 400 (800 x 800 check) | H3 | | |
 | Training step budget | set after benchmark for ~30-45 min (R6) | H5 | | |
