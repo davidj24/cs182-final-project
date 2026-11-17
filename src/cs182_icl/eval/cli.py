@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 from importlib import import_module
@@ -11,13 +12,13 @@ from pathlib import Path
 from cs182_icl.eval import experiments as ex
 from cs182_icl.eval.cache import RefCache, next_results_version
 from cs182_icl.eval.cases import load_npz_rows, prefix_cases, rows_as_cases
-from cs182_icl.eval.metrics import train_d_variance
+from cs182_icl.eval.metrics import train_d_variance_with_key
 from cs182_icl.eval.predictors import (
     AnalyticTruePredictor,
     FunctionPredictor,
     ModelPredictor,
     OraclePredictor,
-    bayes_predictor_or_none,
+    bayes_status,
 )
 from cs182_icl.types import Action, Observation
 
@@ -35,6 +36,39 @@ def reference_predictors() -> list:
     return preds
 
 
+def _find_hashes(meta: dict) -> dict:
+    """{filename: sha256} from any meta.json key containing 'sha256' that maps names to hashes."""
+    for k, v in meta.items():
+        if "sha256" in k.lower() and isinstance(v, dict):
+            flat = {kk: vv for kk, vv in v.items() if isinstance(vv, str)}
+            if flat:
+                return flat
+    return {}
+
+
+def provenance(ds: Path, meta: dict, var_key: str, model_loader: str | None, files) -> list[str]:
+    """Header lines: dataset version/source SHA, verified npz hashes (raises on mismatch)."""
+    hashes = _find_hashes(meta)
+    lines = [
+        f"dataset: {ds} (meta version = {meta.get('version', 'n/a')}; source git SHA = "
+        f"{next((meta[k] for k in ('source_git_sha', 'git_sha', 'source_sha', 'source_commit') if k in meta), 'n/a')})",
+        f"Var(d) read from meta.json key {var_key}",
+        f"model: {model_loader or 'none (references only)'}",
+    ]
+    checked = []
+    for f in files:
+        want = hashes.get(f) or hashes.get(Path(f).stem)
+        if want is None:
+            continue
+        got = hashlib.sha256((ds / f).read_bytes()).hexdigest()
+        if got != want:
+            raise RuntimeError(f"{f}: sha256 {got} != meta.json {want}; refusing to evaluate")
+        checked.append(f)
+    lines.append("npz sha256 verified against meta.json: " + (", ".join(checked) or
+                 "NOT VERIFIED (no per-file hash found in meta.json)"))
+    return lines
+
+
 def main(argv=None) -> Path:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--dataset-dir", required=True, help="$CS282A_DATA/datasets/vN")
@@ -47,22 +81,28 @@ def main(argv=None) -> Path:
 
     ds = Path(args.dataset_dir)
     meta = json.loads((ds / "meta.json").read_text())
-    var_d = train_d_variance(meta)
-    out = Path(args.out_dir) if args.out_dir else next_results_version(os.environ["CS282A_DATA"])
-    out.mkdir(parents=True, exist_ok=True)
+    var_d, var_key = train_d_variance_with_key(meta)
+    if args.out_dir:
+        out = Path(args.out_dir)
+        if out.exists():
+            raise SystemExit(f"--out-dir {out} already exists; results dirs are write-once")
+        out.mkdir(parents=True)
+    else:
+        out = next_results_version(os.environ["CS282A_DATA"])
+    wanted = set(args.experiments.split(","))
+    prov = provenance(ds, meta, var_key, args.model_loader, sorted({f"{e}.npz" for e in wanted} | ({"e1.npz"} if "e4" in wanted else set())))
     cache = RefCache(out, args.reuse_cache)
     preds = reference_predictors()
-    bayes = bayes_predictor_or_none()
+    bayes, why = bayes_status()
     if bayes is None:
-        print("bayes: unavailable")
+        print(f"bayes: unavailable ({why})")
     if args.model_loader:
         mod, fn = args.model_loader.split(":")
         model, norm = getattr(import_module(mod), fn)()
         preds = [ModelPredictor(model, norm)] + preds
     else:
         print("no model supplied: references only")
-    wanted = set(args.experiments.split(","))
-    kw = dict(bayes=bayes, cache=cache, seed=args.seed)
+    kw = dict(bayes=bayes, cache=cache, seed=args.seed, header_extra=prov)
     if "e1" in wanted:
         ex.run_e1(prefix_cases(load_npz_rows(ds / "e1.npz"), ex.E1_CS), preds, out, var_d, **kw)
     if "e2" in wanted:

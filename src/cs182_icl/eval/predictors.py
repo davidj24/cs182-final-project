@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import os
 from collections.abc import Callable, Sequence
+from dataclasses import replace
 from importlib import import_module
 from typing import Any, Protocol, runtime_checkable
 
@@ -32,11 +33,20 @@ class Predictor(Protocol):
 
 def dedupe_by_measurement_id(context: Sequence[Observation]) -> list[Observation]:
     """Keep the first observation of every measurement_id (padding id -1 dropped)."""
-    seen, out = set(), []
+    seen: dict[int, Observation] = {}
+    out = []
     for o in context:
-        if o.measurement_id == -1 or o.measurement_id in seen:
+        if o.measurement_id == -1:
             continue
-        seen.add(o.measurement_id)
+        if o.measurement_id in seen:
+            first = seen[o.measurement_id]
+            if (first.action, first.d_obs) != (o.action, o.d_obs):
+                raise ValueError(
+                    f"measurement_id {o.measurement_id} repeated with a different action/d_obs: "
+                    "copies must be exact copies"
+                )
+            continue
+        seen[o.measurement_id] = o
         out.append(o)
     return out
 
@@ -126,7 +136,13 @@ class ModelPredictor:
         out: list[Prediction] = []
         for i in range(0, len(cases), self.batch_size):
             chunk = cases[i : i + self.batch_size]
-            arr = np.asarray(model_predict(self.model, [cs.item for cs in chunk], self.norm))
+            # mask clean values: the model input must never contain d_clean or the query target
+            items = [
+                replace(cs.item, d_query_clean=float("nan"),
+                        context=[replace(o, d_clean=float("nan")) for o in cs.item.context])
+                for cs in chunk
+            ]
+            arr = np.asarray(model_predict(self.model, items, self.norm))
             if arr.shape != (len(chunk),) or not np.all(np.isfinite(arr)):
                 raise ValueError("model_predict returned wrong shape or non-finite values")
             out += [Prediction(float(v), "ok") for v in arr]
@@ -136,8 +152,8 @@ class ModelPredictor:
         return self.predict_batch([case])[0]
 
 
-def bayes_predictor_or_none() -> FunctionPredictor | None:
-    """The Bayes predictor if one is valid, else None ("bayes: unavailable").
+def bayes_status() -> tuple[FunctionPredictor | None, str]:
+    """(predictor or None, reason). Reason is "" when available, else why Bayes is blocked.
 
     Supply one with env CS282A_BAYES_PREDICTOR="module:attr" (attr is a Predictor object or a
     fn(context, query)). Otherwise cs182_icl.reference.bayes.bayes_predict is probed; if it
@@ -148,8 +164,8 @@ def bayes_predictor_or_none() -> FunctionPredictor | None:
         mod, attr = spec.split(":")
         obj = getattr(import_module(mod), attr)
         if isinstance(obj, Predictor):
-            return obj  # type: ignore[return-value]
-        return FunctionPredictor("bayes_train", obj, cache_key=f"env:{spec}")
+            return obj, ""  # type: ignore[return-value]
+        return FunctionPredictor("bayes_train", obj, cache_key=f"env:{spec}"), ""
     try:
         from cs182_icl.reference.bayes import bayes_predict
 
@@ -161,7 +177,12 @@ def bayes_predictor_or_none() -> FunctionPredictor | None:
             Action(18.0, 200),
         )
     except NotImplementedError:
-        return None
+        return None, "bayes_predict not implemented"
     if probe.status == "blocked":
-        return None
-    return FunctionPredictor("bayes_train", bayes_predict, cache_key="bayes_predict_default")
+        return None, str(probe.reason or "blocked")
+    return FunctionPredictor("bayes_train", bayes_predict, cache_key="bayes_predict_default"), ""
+
+
+def bayes_predictor_or_none() -> FunctionPredictor | None:
+    """The Bayes predictor if one is valid, else None ("bayes: unavailable")."""
+    return bayes_status()[0]

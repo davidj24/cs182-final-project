@@ -70,6 +70,10 @@ def _lines(ax, rows, panel, *, linestyle_of=lambda r: "-"):
         label = method if style in ("", "all") else f"{method} ({style})"
         ax.plot(x, y, linestyle=linestyle_of(pts[0]), label=label, **_style(method))
         ax.fill_between(x, np.maximum(y - se, 0), y + se, color=_style(method)["color"], alpha=0.12, lw=0)
+        for p, xi, yi in zip(pts, x, y):  # partial coverage: show how many items are valid
+            if p["n_ok"] < p["n"]:
+                ax.annotate(f"{p['n_ok']}/{p['n']}", (xi, yi), textcoords="offset points",
+                            xytext=(3, 4), fontsize=6, color=_style(method)["color"])
 
 
 def _save(fig, path: Path, rows, header):

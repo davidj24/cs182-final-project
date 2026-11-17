@@ -17,7 +17,7 @@ from pathlib import Path
 
 import numpy as np
 
-from cs182_icl.eval.cases import Case, assert_clean_targets
+from cs182_icl.eval.cases import Case, assert_finite_targets
 from cs182_icl.eval.predictors import Predictor, predict_all
 from cs182_icl.types import Prediction
 
@@ -43,7 +43,7 @@ class Scores:
 
 
 def score_cases(method: str, kind: str, cases: Sequence[Case], preds: Sequence[Prediction]) -> Scores:
-    assert_clean_targets(cases)
+    assert_finite_targets(cases)
     d_pred = np.array(
         [p.d_pred if p.status == "ok" else np.nan for p in preds], dtype=np.float64
     )
@@ -87,23 +87,21 @@ def assert_same_items(scores: dict[str, Scores]) -> None:
 
 
 # ---------------------------------------------------------------- elementary metrics
-def train_d_variance(meta: dict) -> float:
-    """Training-set Var(d) from meta.json normalization (computed from train.npz only).
-
-    Reads normalization["d_obs"]["std"] (pilot noise is 0, so d_obs == d_clean); also accepts
-    flat "d_obs_std" / "d_std". Raises if absent so a wrong denominator is never guessed.
-    """
+def train_d_variance_with_key(meta: dict) -> tuple[float, str]:
+    """(Var(d), name of the meta.json key read). Var(d) = training-set variance of d_obs from
+    meta["normalization"]["d_obs"]["std"] squared (INTERFACES: computed from train.npz only;
+    pilot noise is 0 so d_obs == d_clean). Raises if absent: a denominator is never guessed."""
     norm = meta["normalization"]
-    for getter in (
-        lambda n: n["d_obs"]["std"],
-        lambda n: n["d_obs_std"],
-        lambda n: n["d_std"],
-    ):
+    for path in (("d_obs", "std"),):
         try:
-            return float(getter(norm)) ** 2
+            return float(norm[path[0]][path[1]]) ** 2, "normalization.d_obs.std"
         except (KeyError, TypeError):
             continue
-    raise KeyError("meta.json normalization has no d_obs std")
+    raise KeyError("meta.json has no normalization.d_obs.std")
+
+
+def train_d_variance(meta: dict) -> float:
+    return train_d_variance_with_key(meta)[0]
 
 
 def tertile_edges(d_unique: np.ndarray) -> tuple[float, float]:

@@ -11,7 +11,13 @@ from pathlib import Path
 import numpy as np
 
 from cs182_icl.eval import plots
-from cs182_icl.eval.cases import Case, assert_clean_targets, assert_prefix_paired
+from cs182_icl.eval.cases import (
+    Case,
+    assert_e2_cells,
+    assert_e3_copies,
+    assert_finite_targets,
+    assert_prefix_paired,
+)
 from cs182_icl.eval.metrics import (
     COLUMNS,
     Scores,
@@ -57,8 +63,20 @@ def _bayes_setup(bayes: Predictor | None, denom_cases, cache):
     sc = evaluate_all(_c0_cases(denom_cases), [bayes], cache)[bayes.name]
     D = bayes_denominator(sc)
     if D is None:
-        return None, "bayes: unavailable (c=0 Bayes set not fully valid)"
+        return None, (
+            f"bayes: unavailable (c=0 Bayes set not fully valid: {int(sc.ok.sum())}/{len(sc.ok)} ok);"
+            " Bayes dropped from all outputs"
+        )
     return D, ""
+
+
+def _predictors(predictors, bayes, D):
+    """Bayes joins the evaluated predictors only when its denominator D is valid (M3)."""
+    return list(predictors) + ([bayes] if (bayes is not None and D is not None) else [])
+
+
+def _extra(cache, header_extra, *lines):
+    return [ln for ln in lines if ln] + list(header_extra) + (cache.provenance_lines() if cache is not None else [])
 
 
 def _series(scores: dict[str, Scores], var_d: float, groups: dict) -> list[dict]:
@@ -122,20 +140,20 @@ def print_examples(cases: Sequence[Case], scores: dict[str, Scores], c: int, n: 
 
 
 # ---------------------------------------------------------------- E1
-def run_e1(cases, predictors, out_dir, var_d, *, bayes=None, cache=None, seed=0, print_c=2):
+def run_e1(cases, predictors, out_dir, var_d, *, bayes=None, cache=None, seed=0, print_c=2, header_extra=()):
     """E1: error vs context length. `cases` from prefix_cases(rows, E1_CS)."""
     assert_prefix_paired(cases)
-    assert_clean_targets(cases)
+    assert_finite_targets(cases)
     out = _fresh(out_dir)
-    preds = list(predictors) + ([bayes] if bayes is not None else [])
     D, note = _bayes_setup(bayes, cases, cache)
+    preds = _predictors(predictors, bayes, D)
     scores = evaluate_all(cases, preds, cache)
     first = next(iter(scores.values()))
     edges = tertile_edges(unique_item_targets(first))
     rows = metric_table(
-        scores, var_d, bayes=scores[bayes.name] if D is not None else None, bayes_D=D, edges=edges
+        scores, var_d, bayes=scores[bayes.name] if bayes is not None and D is not None else None, bayes_D=D, edges=edges
     )
-    header = header_lines(var_d, D, edges, ["experiment: E1, context = first c of one ordered 10-push list (paired)"])
+    header = header_lines(var_d, D, edges, _extra(cache, header_extra, "experiment: E1, context = first c of one ordered 10-push list (paired)", note))
     write_csv(out / "e1_metrics.csv", rows, COLUMNS, header)
     # paired: each method at c vs c=0 (same items), and model vs each other method at each c
     paired = []
@@ -162,20 +180,20 @@ def run_e1(cases, predictors, out_dir, var_d, *, bayes=None, cache=None, seed=0,
 
 
 # ---------------------------------------------------------------- E2
-def run_e2(cases, predictors, out_dir, var_d, *, bayes=None, cache=None, seed=0):
+def run_e2(cases, predictors, out_dir, var_d, *, bayes=None, cache=None, seed=0, header_extra=()):
     """E2: cells A-D. Condition strings 'E2/A'..'E2/D'; c = context length of the row."""
-    assert_clean_targets(cases)
-    assert_prefix_paired(cases)
+    assert_finite_targets(cases)
+    assert_e2_cells(cases)  # no prefix assertion: cell-D contexts at c=2,4 need not nest
     out = _fresh(out_dir)
-    preds = list(predictors) + ([bayes] if bayes is not None else [])
     D, note = _bayes_setup(bayes, cases, cache)
+    preds = _predictors(predictors, bayes, D)
     scores = evaluate_all(cases, preds, cache)
     first = next(iter(scores.values()))
     cell = np.array([cs.item.condition.split("/")[-1] for cs in cases])
     edges = tertile_edges(unique_item_targets(first))
-    rows = metric_table(scores, var_d, bayes=scores[bayes.name] if D is not None else None,
+    rows = metric_table(scores, var_d, bayes=scores[bayes.name] if bayes is not None and D is not None else None,
                         bayes_D=D, edges=edges)
-    header = header_lines(var_d, D, edges, ["experiment: E2 cells A-D (A,B same-force history; C,D distinct-force; A,C familiar query; B,D new query)"])
+    header = header_lines(var_d, D, edges, _extra(cache, header_extra, "experiment: E2 cells A-D (A,B same-force history; C,D distinct-force; A,C familiar query; B,D new query)", note))
     write_csv(out / "e2_metrics.csv", rows, COLUMNS, header)
     paired = []
     for name, s in scores.items():
@@ -204,20 +222,21 @@ def _k_of(cs: Case) -> int:
     return int(m.group(1))
 
 
-def run_e3(cases, predictors, out_dir, var_d, *, bayes=None, cache=None, seed=0):
+def run_e3(cases, predictors, out_dir, var_d, *, bayes=None, cache=None, seed=0, header_extra=()):
     """E3 no-noise redundancy. Conditions 'E3/k=<copies>'. References deduplicate by
     measurement_id (FunctionPredictor does this); the model sees the full sequence."""
-    assert_clean_targets(cases)
+    assert_finite_targets(cases)
     assert_prefix_paired(cases, group_key=lambda cs: (cs.item_id,))
+    assert_e3_copies(cases)
     out = _fresh(out_dir)
-    preds = list(predictors) + ([bayes] if bayes is not None else [])
     D, note = _bayes_setup(bayes, cases, cache)
+    preds = _predictors(predictors, bayes, D)
     scores = evaluate_all(cases, preds, cache)
     first = next(iter(scores.values()))
     k = np.array([_k_of(cs) for cs in cases])
     edges = tertile_edges(unique_item_targets(first))
-    rows = metric_table(scores, var_d, group_fn=lambda key: key[1], bayes=scores[bayes.name] if D is not None else None, bayes_D=D, edges=edges)
-    header = header_lines(var_d, D, edges, [plots.E3_LABEL])
+    rows = metric_table(scores, var_d, group_fn=lambda key: key[1], bayes=scores[bayes.name] if bayes is not None and D is not None else None, bayes_D=D, edges=edges)
+    header = header_lines(var_d, D, edges, _extra(cache, header_extra, plots.E3_LABEL, note))
     write_csv(out / "e3_metrics.csv", rows, COLUMNS, header)
     # prediction change vs k=0 on the same item
     change_rows, series = [], []
@@ -245,15 +264,15 @@ def run_e3(cases, predictors, out_dir, var_d, *, bayes=None, cache=None, seed=0)
 
 
 # ---------------------------------------------------------------- E4
-def run_e4(id_cases, ood_cases, predictors, out_dir, var_d, *, bayes=None, cache=None, seed=0):
+def run_e4(id_cases, ood_cases, predictors, out_dir, var_d, *, bayes=None, cache=None, seed=0, header_extra=()):
     """E4: in-distribution E1 cases vs heavy-OOD cases at c in E4_CS (different cubes, so the
     comparison is descriptive, not paired). D for NMSE comes from the in-distribution c=0 set."""
     for cs in (id_cases, ood_cases):
-        assert_clean_targets(cs)
+        assert_finite_targets(cs)
         assert_prefix_paired(cs)
     out = _fresh(out_dir)
-    preds = list(predictors) + ([bayes] if bayes is not None else [])
     D, note = _bayes_setup(bayes, id_cases, cache)
+    preds = _predictors(predictors, bayes, D)
     s_id = evaluate_all(id_cases, preds, cache)
     s_ood = evaluate_all(ood_cases, preds, cache)
     f_id = next(iter(s_id.values()))
@@ -261,13 +280,13 @@ def run_e4(id_cases, ood_cases, predictors, out_dir, var_d, *, bayes=None, cache
     rows = []
     for tag, sc in (("E1 in-distribution", s_id), ("E4 heavy OOD", s_ood)):
         t = metric_table(sc, var_d, group_fn=lambda key, tag=tag: tag,
-                         bayes=sc[bayes.name] if D is not None else None, bayes_D=D, edges=edges)
+                         bayes=sc[bayes.name] if bayes is not None and D is not None else None, bayes_D=D, edges=edges)
         rows += t
-    header = header_lines(var_d, D, edges, [
+    header = header_lines(var_d, D, edges, _extra(cache, header_extra,
         "experiment: E4 " + plots.E4_LABEL + " (heavy cubes, no retraining; 50 cubes, one seed)",
         "tertile edges come from the in-distribution item targets and are applied to both sets",
         "NMSE denominator D is the in-distribution Bayes c=0 MSE, shared with the OOD set",
-    ])
+        note))
     write_csv(out / "e4_metrics.csv", rows, COLUMNS, header)
     groups_series = []
     for style, sc in (("in-distribution", s_id), ("heavy OOD", s_ood)):

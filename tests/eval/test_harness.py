@@ -137,7 +137,10 @@ def test_cache_reads_earlier_version(tmp_path):
     new = RefCache(tmp_path / "v2", [tmp_path / "v1"])
     new.get_or_compute(p, cases)
     assert calls["n"] == n and new.hits == 1
-    assert not list((tmp_path / "v2" / "ref_cache").glob("*.json"))
+    # M4/m8: the hit is copied into the new results dir (self-contained); the old one is untouched
+    assert len(list((tmp_path / "v2" / "ref_cache").glob("*.json"))) == 1
+    assert len(list((tmp_path / "v1" / "ref_cache").glob("*.json"))) == 1
+    assert new.hit_sources == {str(tmp_path / "v1")}
 
 
 def test_next_results_version(tmp_path):
