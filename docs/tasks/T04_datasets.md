@@ -1,5 +1,5 @@
 # T04: Datasets and test-set builders
-Worktree: data | Writer: Claude Sonnet | Reviewer: Codex strong, medium effort
+Worktree: data | Writer: Claude Sonnet (writer-sonnet) | Reviewer: fresh Claude Opus
 Reads: PROTOCOL §5-6, §9, DECISIONS | Gate: H4
 Needs: H2 decisions and merged sim, synced into this worktree.
 Owns: src/cs182_icl/data/, tests/data/, scripts/make_*, docs/handoffs/T04.md,

@@ -1,5 +1,5 @@
 # T03: Reference estimators
-Worktree: ref | Writer: Claude Opus, high effort | Reviewer: Codex strong, high effort
+Worktree: ref | Writer: Claude Opus, visible session, plan first | Reviewer: fresh Claude Opus + human hand check at H3
 Reads: PROTOCOL §2, §5, §8 | Gate: H3
 Owns: src/cs182_icl/reference/, tests/reference/, docs/handoffs/T03.md,
 docs/questions/T03.md, docs/runbook/T03.md

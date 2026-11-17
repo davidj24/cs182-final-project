@@ -1,5 +1,5 @@
 # T01: MuJoCo scene and rollout
-Worktree: sim | Writer: Codex strong, medium effort | Reviewer: Claude Opus
+Worktree: sim | Writer: Claude Sonnet (writer-sonnet) | Reviewer: fresh Claude Opus (reviewer-opus)
 Reads: PROTOCOL §3-4, INTERFACES | Gate: H1
 Owns: src/cs182_icl/sim/, assets/, tests/sim/, scripts/sim_view.py,
 docs/handoffs/T01.md, docs/questions/T01.md, docs/runbook/T01.md

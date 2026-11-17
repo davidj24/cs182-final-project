@@ -1,6 +1,5 @@
 # T02: Validation gate and pilot
-Worktree: sim (after T01 is merged and the worktree synced) | Writer: Codex fast (scripts),
-Claude Sonnet (gate packet write-up) | Gate: H2 (human decides)
+Worktree: sim (after T01 is merged and the worktree synced) | Writer: Claude Sonnet (writer-sonnet; scripts and gate packet write-up) | Reviewer: fresh Claude Opus | Gate: H2 (human decides)
 Reads: PROTOCOL §3-4, INTERFACES
 Owns: scripts/sim_validate.py, scripts/sim_pilot.py, scripts/sim_gate_packet.py, tests/sim/test_validate_*.py,
 docs/handoffs/T02.md, docs/questions/T02.md, docs/runbook/T02.md

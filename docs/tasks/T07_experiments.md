@@ -1,6 +1,6 @@
 # T07: Run experiments and results report
-Worktree: eval (after T06 merged and synced) | Scripts: Claude Sonnet | Monitoring: Claude Haiku
-(no session; one-shot `claude -p`) | Interpretation draft: Claude Opus
+Worktree: eval (after T06 merged and synced) | Scripts: Claude Sonnet (writer-sonnet) | Monitoring: Claude Haiku
+(no session; one-shot `claude -p`) | Interpretation draft: Claude Opus | Reviewer: fresh Claude Opus
 Reads: PROTOCOL §9-11 | Gates: H7 (first model), H8 (monitor), H9 (results)
 Owns: scripts/run_all_eval.sh, results/ (small CSVs/figures only), docs/handoffs/T07.md,
 docs/questions/T07.md, docs/runbook/T07.md

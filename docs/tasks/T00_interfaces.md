@@ -1,5 +1,5 @@
 # T00: Interfaces and skeleton
-Worktree: spec | Writer: Claude Opus (plan mode) | Reviewer: Codex strong, high effort
+Worktree: spec | Writer: Claude Opus, visible session (plan mode) | Reviewer: fresh Claude Opus (reviewer-opus)
 Reads: PROTOCOL §2-9 | Gate: H0
 Owns: docs/INTERFACES.md, pyproject.toml (dependency additions only), src/cs182_icl/**
 (skeleton + physics.py + types.py), tests/ (shared skeleton, tests/test_physics.py),

@@ -1,5 +1,5 @@
 # T06: Evaluation harness, metrics, plots
-Worktree: eval | Writer: Claude Sonnet (harness), Claude Haiku (plot styling) | Reviewer: Codex fast
+Worktree: eval | Writer: Claude Sonnet (harness), Claude Haiku (plot styling) | Reviewer: fresh Claude Opus
 Reads: PROTOCOL §9-11 | Gate: H6 (harness correctness, before any model exists)
 Owns: src/cs182_icl/eval/, tests/eval/, scripts/eval_*, scripts/plot_*, docs/handoffs/T06.md,
 docs/questions/T06.md, docs/runbook/T06.md

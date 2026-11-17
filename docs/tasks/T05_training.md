@@ -1,5 +1,5 @@
 # T05: Model and training (adapt Garg et al.)
-Worktree: train | Writer: Codex strong, medium effort | Reviewer: Claude Sonnet
+Worktree: train | Writer: Claude Sonnet (writer-sonnet; Opus if it struggles) | Reviewer: fresh Claude Opus
 Reads: PROTOCOL §5, §7 | Gate: H5
 Can start after H0 on synthetic rows from physics.py; swap in real data after H4.
 Owns: src/cs182_icl/model/, src/cs182_icl/train/, third_party/, tests/model/, tests/train/,

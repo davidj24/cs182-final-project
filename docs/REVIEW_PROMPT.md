@@ -1,4 +1,4 @@
-# Review prompt (paste into a reviewer session started read-only, other vendor than the writer)
+# Review prompt (used by the reviewer-opus subagent, or pasted into a fresh read-only Claude session)
 
 You are reviewing task <TXX> at commit <SHA> on branch <BRANCH> (base: soomi-integration).
 The writer has committed its handoff and stopped. Read docs/tasks/<TXX>*.md, the PROTOCOL
