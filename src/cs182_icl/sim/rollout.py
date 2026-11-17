@@ -174,8 +174,10 @@ def simulate_push(cube: Cube, action: Action, *, dt: float = DT) -> PushResult:
     stopping rule fires or the cap is reached. Never drops flagged rollouts: rotation and timeout
     flags are returned in the PushResult.
 
-    t_stop is the time (from push start) at which the 50-step dwell completes, i.e. when the rule
-    fires; it exceeds the physical stopping time by about DWELL_S.
+    t_stop is the time (from push start, s) at which the stopping rule FIRES: the first step i >= k
+    after which speeds stayed below LIN_TOL (|v| < 1e-4 m/s) and ANG_TOL (|w| < 1e-3 rad/s) for 50
+    consecutive steps. So t_stop = (first calm step) + DWELL_S (0.05 s) (at the cap: CAP_S, timed_out).
+    The first calm step is therefore t_stop - DWELL_S. d is the x displacement at the firing step.
     """
     s = _sim(dt)
     s.set_cube(cube.m, cube.mu)
@@ -198,7 +200,9 @@ def simulate_batch(items, *, workers: int = MAX_WORKERS, dt: float = DT, seed: i
     Jobs are grouped by (m, mu) so each cube settles once per worker; groups are shuffled with
     `seed` for load balance. Results do not depend on workers or seed (simulation is
     deterministic); the seed fixes the job layout so runs are reproducible bit-for-bit.
-    Workers are capped at 16. Prints seconds per rollout (wall clock and per-worker CPU).
+    Workers are capped at 16. The pool uses the fork start method: call this BEFORE any CUDA/torch
+    initialisation in the process (forking after CUDA init is unsafe); otherwise run with workers=1.
+    Prints seconds per rollout (wall clock and per-worker CPU).
     """
     import multiprocessing as mp
 

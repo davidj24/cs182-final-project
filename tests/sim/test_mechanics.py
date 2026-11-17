@@ -159,14 +159,43 @@ def test_timeout_flag_returned():
     assert res.d > 0  # flagged rollout is returned, not dropped
 
 
-def test_max_rotation_over_trajectory(sim):
+def test_max_rotation_is_recorded_over_trajectory(sim):
     sim.set_cube(1.0, 0.45)
     res, tr = sim.rollout(Action(20.0, 150), record=True)
     assert res.max_rotation_deg == pytest.approx(tr["rot_deg"].max())
     assert res.max_rotation_deg >= tr["rot_deg"][-1] - 1e-12
-    # the cube pitches when pushed (force at the centre of mass, friction at the base): > 1 deg is
-    # a real, flagged outcome and must be recorded, not clipped
-    assert 1.0 < res.max_rotation_deg < 20.0
+
+
+def _push_flatness(m, mu, F, k):
+    """(max rotation deg, centre-height excursion during the push mm, min contacts during the push)."""
+    s = Simulator()
+    s.set_cube(m, mu)
+    res, _ = s.rollout(Action(F, k))
+    s.restore()
+    fx = s.data.xfrc_applied[s.body]
+    zs, minc = [], 99
+    for _ in range(k):
+        fx[0] = F
+        mujoco.mj_step(s.model, s.data)
+        zs.append(s.data.qpos[2])
+        minc = min(minc, s.data.ncon)
+    return res.max_rotation_deg, (max(zs) - min(zs)) * 1e3, minc
+
+
+FLAT_CORNERS = [(1.0, 0.45, 20.0, 150), (0.5, 0.3, 26.0, 200), (1.5, 0.6, 26.0, 200),
+                (0.5, 0.6, 13.0, 100), (0.5, 0.6, 26.0, 200)]  # last: light + grippy
+
+
+# KNOWN FAILURE (docs/questions/T01.md): with MuJoCo soft contacts the sliding cube hops and tumbles.
+# A rigid cube pushed at its centre of mass must stay flat (tipping needs mu > s/(2h) = 1), so these
+# assertions are the physical requirement; they are xfail(strict) until a contact setting meets them.
+@pytest.mark.xfail(strict=True, reason="contact hopping/tumbling, see docs/questions/T01.md")
+@pytest.mark.parametrize("m,mu,F,k", FLAT_CORNERS)
+def test_push_stays_flat_and_in_contact(m, mu, F, k):
+    rot, exc_mm, minc = _push_flatness(m, mu, F, k)
+    assert rot < 1.0
+    assert exc_mm < 1.0
+    assert minc >= 1  # contact kept in every step of the push
 
 
 def test_matches_analytic_roughly():

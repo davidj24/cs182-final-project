@@ -1,4 +1,4 @@
-"""Save replays + frames for three representative pushes (PILOT_SPEC G1).
+"""Save replays + frames for four representative pushes (PILOT_SPEC G1).
 
 Output: $CS282A_DATA/pilot/sim_frames/<timestamp>/ with <case>.npz (trajectory replay),
 <case>_traj.png (position / height / rotation vs time) and, if MuJoCo EGL rendering works,
@@ -28,6 +28,7 @@ CASES = {
     "light_slippery": (0.5, 0.3, 26.0, 200),
     "middle": (1.0, 0.45, 20.0, 150),
     "heavy_grippy": (1.5, 0.6, 26.0, 200),
+    "light_grippy": (0.5, 0.6, 26.0, 200),  # fourth case: tumbles in the current scene (T01 repair)
 }
 
 
