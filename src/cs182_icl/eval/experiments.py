@@ -103,7 +103,7 @@ def print_examples(cases: Sequence[Case], scores: dict[str, Scores], c: int, n: 
     """Print ~n item-level examples at context length c: query F,T, true d, each method."""
     names = list(scores)
     idx = [i for i, cs in enumerate(cases) if cs.c == c][:n]
-    lines = ["item  F[N]   T[s]   d_true[m]  " + "  ".join(f"{m:>14s}" for m in names)]
+    lines = ["condition   item  F[N]   T[s]   d_true[m]  " + "  ".join(f"{m:>14s}" for m in names)]
     for i in idx:
         cs = cases[i]
         cells = []
@@ -111,7 +111,7 @@ def print_examples(cases: Sequence[Case], scores: dict[str, Scores], c: int, n: 
             s = scores[m]
             cells.append(f"{s.d_pred[i]:14.6f}" if s.status[i] == "ok" else f"{s.status[i]:>14s}")
         lines.append(
-            f"{cs.item_id:4d} {cs.item.query.F:6.2f} {cs.item.query.T:6.3f} {cs.target:11.6f}  "
+            f"{cs.item.condition:10s} {cs.item_id:4d} {cs.item.query.F:6.2f} {cs.item.query.T:6.3f} {cs.target:11.6f}  "
             + "  ".join(cells)
         )
     if "bayes_train" not in scores:

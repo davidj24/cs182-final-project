@@ -46,6 +46,7 @@ def _clean_axes(ax, xlabel, ylabel, title=None):
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
     ax.set_yscale("symlog", linthresh=1e-3)
+    ax.set_ylim(bottom=0)
     ax.spines[["top", "right"]].set_visible(False)
     ax.grid(axis="y", alpha=0.25)
     if title:
@@ -84,7 +85,7 @@ def plot_e1(rows, path, header, title="E1: does the transformer use previous int
     fig, ax = plt.subplots(figsize=(6.4, 4.2))
     _lines(ax, rows, "main")
     _clean_axes(ax, "context length c (first c of the same 10 pushes)", "standardized MSE (train Var(d))", title)
-    ax.legend(frameon=False, fontsize=8)
+    ax.legend(frameon=False, fontsize=8, loc="upper left", bbox_to_anchor=(1.01, 1))
     ax.set_xticks(sorted({r["x"] for r in rows}))
     fig.text(0.01, -0.02, "error vs clean MuJoCo target; band = +-1 SE over items", fontsize=7)
     _save(fig, path, rows, header)
@@ -96,7 +97,7 @@ def plot_e2(rows, path, header):
         _lines(ax, rows, panel, linestyle_of=lambda r: "--" if r["style"] == "same-force" else "-")
         _clean_axes(ax, "context length c", "standardized MSE (train Var(d))", panel)
         ax.set_xticks(sorted({r["x"] for r in rows if r["panel"] == panel}))
-    axes[0].legend(frameon=False, fontsize=7)
+    axes[1].legend(frameon=False, fontsize=7, loc="upper left", bbox_to_anchor=(1.01, 1))
     fig.suptitle("E2: same-force (dashed) vs distinct-force (solid) context", fontsize=11)
     _save(fig, path, rows, header)
 
@@ -111,7 +112,7 @@ def plot_e3(rows, path, header):
         _lines(ax, rows, panel)
         _clean_axes(ax, "appended copies k", ylabel, panel)
         ax.set_xticks(sorted({r["x"] for r in rows}))
-    axes[0].legend(frameon=False, fontsize=8)
+    axes[1].legend(frameon=False, fontsize=8, loc="upper left", bbox_to_anchor=(1.01, 1))
     fig.suptitle("E3: robustness to duplicated context", fontsize=11)
     fig.text(0.5, -0.02, E3_LABEL, ha="center", fontsize=8, style="italic")
     _save(fig, path, rows, header)
@@ -122,7 +123,7 @@ def plot_e4(rows, path, header):
     _lines(ax, rows, "main", linestyle_of=lambda r: "--" if r["style"] == "heavy OOD" else "-")
     _clean_axes(ax, "context length c", "standardized MSE (train Var(d))", f"E4: {E4_LABEL}")
     ax.set_xticks(sorted({r["x"] for r in rows}))
-    ax.legend(frameon=False, fontsize=7)
+    ax.legend(frameon=False, fontsize=7, loc="upper left", bbox_to_anchor=(1.01, 1))
     fig.text(0.01, -0.03, "solid: in-distribution E1 cubes; dashed: heavy cubes (different cubes, not paired).\n"
              "50 cubes, one seed: not evidence of generalization.", fontsize=7)
     _save(fig, path, rows, header)
