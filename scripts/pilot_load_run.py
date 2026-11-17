@@ -39,6 +39,7 @@ def load_checked(run_dir: Path, ckpt_name: str = "best.pt", device: str = "cpu")
     ds_meta = json.loads((ds_dir / "meta.json").read_text())
     norm = ck["norm"]
     assert _same(norm, meta["normalization"]), "checkpoint norm != run meta.json norm"
+    assert _same(norm, ds_meta["normalization"]), "checkpoint norm != dataset meta.json norm"
     for name, h in cfg["dataset_files_sha256"].items():
         fn = name if name.endswith(".npz") else name + ".npz"
         assert file_sha256(ds_dir / fn) == h, f"dataset file changed since training: {fn}"
@@ -52,10 +53,13 @@ def load_checked(run_dir: Path, ckpt_name: str = "best.pt", device: str = "cpu")
 
 
 def load():
-    """eval_run.py --model-loader hook: returns (model, norm); prints the provenance record."""
+    """eval_run.py --model-loader hook: returns (model, norm); prints the provenance record (and writes it if CS282A_PROVENANCE_OUT is set)."""
     run = Path(os.environ["CS282A_RUN_DIR"])
     model, norm, info, _ = load_checked(run, os.environ.get("CS282A_CKPT", "best.pt"))
     print("MODEL PROVENANCE " + json.dumps(info, default=str))
+    out = os.environ.get("CS282A_PROVENANCE_OUT")
+    if out:
+        Path(out).write_text(json.dumps(info, indent=2, default=str))
     return model, norm
 
 
@@ -76,7 +80,9 @@ def main():
     at = [r["val_loss"] for r in rows if r.get("type") == "val" and r["step"] == info["step"]]
     print(f"re-evaluated val loss: {v:.8f}; logged at step {info['step']}: {at}")
     if a.ckpt == "best.pt" and at:
-        assert abs(v - at[0]) < 1e-4, "checkpoint does not reproduce its logged val loss"
+        assert abs(v - at[0]) < 1e-6, "checkpoint does not reproduce its logged val loss"
+        vals = [(r["val_loss"], r["step"]) for r in rows if r.get("type") == "val"]
+        assert info["step"] == min(vals)[1], "best.pt step is not the argmin of the logged val loss"
     print("VERIFY OK")
 
 

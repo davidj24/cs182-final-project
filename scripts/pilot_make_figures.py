@@ -10,6 +10,7 @@ Bayes appears only if the results CSVs contain it (valid Bayes only; T06 drops i
 from __future__ import annotations
 
 import argparse
+import textwrap
 from pathlib import Path
 
 import matplotlib
@@ -26,7 +27,7 @@ STYLE = {  # method -> (color, marker, label)
     "analytic_true": ("#7b5ea7", "D", "analytic, true (m, mu)"),
     "oracle": ("#555555", "x", "simulator oracle (=target, error 0)"),
 }
-NOTE = "log y axis; points with value 0 (oracle = target itself) are not drawn. Error vs clean MuJoCo target. Single seed."
+NOTE = "IDEALIZED 1D COULOMB DYNAMICS (not realistic contact). log y axis; value-0 points (oracle = target itself) not drawn. Error vs clean simulator target. Single seed."
 
 
 def _series(ax, d, xlabel, ylabel, title):
@@ -47,6 +48,18 @@ def _series(ax, d, xlabel, ylabel, title):
     ax.grid(True, which="major", alpha=0.25); ax.spines[["top", "right"]].set_visible(False)
 
 
+def cap(fig, txt, fs=7, bold=False):
+    fig.text(0.01, 0.005, textwrap.fill(txt, 170), fontsize=fs, va="bottom", weight="bold" if bold else "normal")
+
+
+def _coverage(d):
+    """e.g. 'physics_fit c=0: 0/100 determined' for every series point with n_ok < n (those points are not drawn when n_ok=0)."""
+    if "n_ok" not in d or "n" not in d:
+        return ""
+    bad = d[(d.n_ok < d.n) & (d.method != "transformer")]
+    return "; ".join(f"{r.method} x={r.x:g}: {int(r.n_ok)}/{int(r.n)} determined" for _, r in bad.iterrows())
+
+
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--results-dir", required=True); ap.add_argument("--out-dir", required=True)
     a = ap.parse_args(); R = Path(a.results_dir); O = Path(a.out_dir); O.mkdir(parents=True, exist_ok=False)
@@ -57,7 +70,7 @@ def main():
     mm = met.rename(columns={"median_rel_err": "value", "c": "x"}).assign(se=np.nan)
     mm = mm[["method", "x", "value", "n_ok", "n"]]
     _series(ax[1], mm, "context length c", "median relative error", "E1: median relative error")
-    ax[0].legend(fontsize=7, frameon=False, loc="upper right"); fig.text(0.01, 0.005, NOTE, fontsize=7); fig.tight_layout(rect=(0, 0.03, 1, 1))
+    ax[0].legend(fontsize=7, frameon=False, loc="upper right"); cap(fig, NOTE + "  Undetermined: " + _coverage(ser[ser.panel == "main"]), fs=6); fig.tight_layout(rect=(0, 0.09, 1, 1))
     fig.savefig(O / "E1_error_vs_context_log.png", dpi=160); plt.close(fig)
     # E2
     d = pd.read_csv(R / "e2_same_vs_distinct.csv", comment="#"); panels = list(dict.fromkeys(d.panel))
@@ -73,26 +86,26 @@ def main():
                               label=(f"{lab} — {st}" if m == "transformer" else (lab if st == "same-force" else None)))
         ax[0, i].set_yscale("log"); ax[0, i].set_title(f"E2: {p}", fontsize=10); ax[0, i].set_xlabel("context length c")
         ax[0, i].set_xticks(sorted(set(d[d.panel == p].x))); ax[0, i].grid(True, alpha=0.25); ax[0, i].spines[["top", "right"]].set_visible(False)
-        ax[0, i].set_ylabel("MSE vs clean target (m²)"); ax[0, i].legend(fontsize=7, frameon=False)
-    fig.text(0.01, 0.005, "Solid = same-force context, dotted = distinct-force context (transformer). 50 paired items. " + NOTE, fontsize=7)
-    fig.tight_layout(rect=(0, 0.03, 1, 1)); fig.savefig(O / "E2_same_vs_distinct_log.png", dpi=160); plt.close(fig)
+        ax[0, i].set_ylabel("standardized MSE (÷ train Var(d))"); ax[0, i].legend(fontsize=7, frameon=False)
+    cap(fig, "Solid = same-force context, dotted = distinct-force (transformer). 50 paired items. " + NOTE + "  Undetermined: " + _coverage(d[d["style"] == "same-force"]), fs=6)
+    fig.tight_layout(rect=(0, 0.09, 1, 1)); fig.savefig(O / "E2_same_vs_distinct_log.png", dpi=160); plt.close(fig)
     # E3
     d = pd.read_csv(R / "e3_redundancy.csv", comment="#"); panels = list(dict.fromkeys(d.panel))
     fig, ax = plt.subplots(1, len(panels), figsize=(5.4 * len(panels), 4.4), squeeze=False)
     for i, p in enumerate(panels):
-        _series(ax[0, i], d[d.panel == p], "number of appended exact copies", "mean |change| vs k=0 (m)" if "change" in p else "MSE vs clean target (m²)", f"E3: {p}")
+        _series(ax[0, i], d[d.panel == p], "number of appended exact copies", "mean |change| vs k=0 (÷ train std(d))" if "change" in p else "standardized MSE (÷ train Var(d))", f"E3: {p}")
         ax[0, i].set_xticks(sorted(set(d.x)))
     ax[0, 0].legend(fontsize=7, frameon=False, loc="best")
-    fig.text(0.01, 0.005, "Preliminary no-noise redundancy test. This does not test the benefit of independent noisy repeated measurements.", fontsize=8, weight="bold")
-    fig.tight_layout(rect=(0, 0.04, 1, 1)); fig.savefig(O / "E3_redundancy_log.png", dpi=160); plt.close(fig)
+    cap(fig, "Preliminary no-noise redundancy test. This does not test the benefit of independent noisy repeated measurements.", fs=8, bold=True)
+    fig.tight_layout(rect=(0, 0.09, 1, 1)); fig.savefig(O / "E3_redundancy_log.png", dpi=160); plt.close(fig)
     # E4
     d = pd.read_csv(R / "e4_heavy_ood.csv", comment="#"); fig, ax = plt.subplots(1, 2, figsize=(11, 4.4), sharey=True)
     for k, st in enumerate(["in-distribution", "heavy OOD"]):
         _series(ax[k], d[d["style"] == st], "context length c", "standardized MSE (÷ train Var(d))" if k == 0 else "", f"E4: {st}" + (" (m in [1.5, 2.0] kg)" if k else " (training range)"))
         ax[k].set_xticks([0, 2, 10])
     ax[0].legend(fontsize=7, frameon=False)
-    fig.text(0.01, 0.005, "preliminary heavy-OOD behavior (50 cubes, 1 seed; no retraining). " + NOTE, fontsize=7)
-    fig.tight_layout(rect=(0, 0.03, 1, 1)); fig.savefig(O / "E4_heavy_ood_log.png", dpi=160); plt.close(fig)
+    cap(fig, "preliminary heavy-OOD behavior (heavy panel: 50 cubes; in-distribution panel: the 100 E1 items; no retraining). " + NOTE, fs=7)
+    fig.tight_layout(rect=(0, 0.09, 1, 1)); fig.savefig(O / "E4_heavy_ood_log.png", dpi=160); plt.close(fig)
     print("wrote", sorted(p.name for p in O.iterdir()))
 
 
