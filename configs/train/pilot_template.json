@@ -1,0 +1,6 @@
+{
+  "_note": "Template only. The real run is created from DECISIONS.md by the human/control; flags below map to scripts/train.py.",
+  "noise": 0.0, "seed": 0, "batch": 256, "lr": 1e-4, "weight_decay": 0.01,
+  "warmup": "5% of steps, cap 2000", "schedule": "cosine over the actual step budget",
+  "steps": "set after bench (see docs/runbook/T05.md)", "eval_every": 250
+}

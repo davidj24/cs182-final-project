@@ -23,3 +23,6 @@ Each entry: value | gate | date | evidence path under $CS282A_DATA.
 | Accepted source commit for main runs | set before first long run | H7 | | |
 
 tau_model(a) = r_model * f(theta, a) + tau_abs (PROTOCOL §8).
+| Physics-fit fit space | regress d on (F^2T^2, -FT^2) (PROTOCOL 8); line-form only as sensitivity | pilot | 2026-11-16 | T03 review M3 |
+| Physics-fit distinct-force tolerance | >= 3 N force span among >= 2 moving pushes; moving = d_obs > 1e-6 m | pilot | 2026-11-16 | T03 review M2 |
+| Simulator scene (PROTOCOL 4 deviation) | translation-only cube (rotation locked; no hop); user-approved option A on 2026-11-16 after T01 review C1 and repair 1 found no contact setting fixes hop/tumble | pilot | 2026-11-16 | reviews/T01/9876867, docs/questions/T01.md |
