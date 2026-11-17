@@ -9,7 +9,7 @@ from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.enum.shapes import MSO_SHAPE
 
-PK = Path(sys.argv[1]); FIG = PK / "figures"; SIM = PK / "simulator_evidence"
+PK = Path(sys.argv[1]); FIG = PK / "figures"; SIM = PK / "simulator_evidence"; SLF = PK / "figures_slides"; SLS = PK / "figures_slides_src"  # caption-free slide versions
 RED = RGBColor(0xC0, 0x39, 0x2B); INK = RGBColor(0x22, 0x22, 0x22); GREY = RGBColor(0x66, 0x66, 0x66); BLUE = RGBColor(0x1F, 0x4E, 0x79); LIGHT = RGBColor(0xF3, 0xF6, 0xFA)
 prs = Presentation(); prs.slide_width = Inches(13.333); prs.slide_height = Inches(7.5); BLANK = prs.slide_layouts[6]
 BANNER = "Idealized 1D Coulomb dynamics • 1 seed • no observation noise • preliminary"
@@ -85,7 +85,7 @@ bullets(s, 0.6, 2.0, 12.1, 3.6, [
     "Task: predict how far a cube slides from a history of earlier pushes on the same hidden cube (unknown mass and friction).",
     "Weights are frozen at test time: any benefit has to come from reading the history.",
     "What we did: built and audited the pipeline; found a limitation in the original MuJoCo contact scene; trained one model on an idealized 1D simulator; ran E1–E4.",
-    "Headline (preliminary): context helps from the very first push — median error 56% → 0.57% — then plateaus at 0.3–0.4% while exact references keep improving.",
+    "Headline (preliminary): context helps from the very first push — median error 56% → 0.57% — then plateaus at 0.33–0.44% while exact references keep improving.",
 ], size=20, gap=12)
 box(s, 0.6, 5.7, 12.1, 0.95, "Everything shown: idealized 1D Coulomb dynamics implemented in MuJoCo • one training seed • no observation noise • 50–100 test items per experiment", size=16)
 footer(s, "Source: packet GUIDE_READ_FIRST.md §0")
@@ -118,8 +118,8 @@ s = new("The original MuJoCo contact scene did not represent our assumptions")
 image(s, crop(SIM / "contact_reproduction_5e0ae3f_v2" / "fig1_contact_failure_traces.png", 0, 0, 1, 0.485, "fig1_top_row.png"), 0.3, 1.3, 12.7, 3.2)
 bullets(s, 0.5, 4.65, 12.3, 2.3, [
     "Verified: the cube hops and loses contact on 104–182 of 150–200 push steps; normal force reaches 8–41 × m g; 105 of 1000 random pushes tumble past 45°. Friction = μ·N whenever it is in contact — the normal load is what breaks.",
-    "The hop occurs even with no applied force. ~30 solver settings and five scene redesigns failed; the armature workaround agreed with the formula only through contact chatter (contact 9–20% of steps) and was rejected.",
-    "Hypothesis, not proven: the soft contact solver lifts N above m g when F > μN (first-step N matches (mg+μF)/(1+μ²) within 0.2%). A finding about this configuration — not “MuJoCo is wrong”.",
+    "The hop occurs even with no applied force. ~30 solver settings and several scene redesigns failed; the armature workaround agreed with the formula only through contact chatter (contact 9–20% of steps) and was rejected.",
+    "Hypothesis, not proven: the soft contact solver lifts N above m g when F > μN (first-step N matches (mg+μF)/(1+μ²) to ~0.2%; that does not by itself explain the no-force hop). A finding about this configuration — not “MuJoCo is wrong”.",
 ], size=15, gap=6)
 footer(s, "REPRODUCTION at historical commit 5e0ae3f: m=0.5 kg, μ=0.6, F=26 N, k=200; yellow = force on; column 3 dashed line = N = m g. Both rows and saved historical evidence: backup slides / packet.")
 notes(s, "SAY: Yellow is force on. Column 1: the cube leaps to 136 mm and spins about 180 degrees. Column 2: velocity falls in stair-steps because friction acts only in contact steps. Column 3: normal force over m g; the dashed line is what the ideal model assumes. Column 4: contact flips between 0, 2 and 4 contacts. Friction obeys Coulomb whenever there is contact; the normal load is what breaks.\nBe careful: say 'this configuration', not 'MuJoCo is wrong'. The mechanism is a hypothesis supported by a numerical match on the first step only.\nLIKELY QUESTIONS: 'Smaller time step?' dt was frozen by the protocol; not tried. 'Could contact be fixed?' Possibly with another formulation; a later project (slide 9).\nEVIDENCE: simulator_evidence/ (historical + reproduction), reviews/T01.")
@@ -130,11 +130,11 @@ box(s, 0.5, 1.3, 12.3, 0.9, "The learning pilot uses idealized 1D Coulomb dynami
 bullets(s, 0.5, 2.35, 6.3, 4.6, [
     "One x-slide joint; push force and Coulomb friction applied explicitly each step; stick rule gives exact stiction (F ≤ μ m g ⇒ d = 0).",
     "No contact, rotation, hopping or tipping (max rotation is vacuously 0).",
-    "Checks passed (2000 settings): |relative error| median 3.4e-7, 95th pct 2.4e-6; halving dt 1.8e-7; T² scaling 1e-6; hand-written event simulation agrees to 1e-13 m.",
+    "Checks passed: 2,000 settings |relative error| median 3.4e-7, 95th pct 2.4e-6; dt-halving (50) 1.8e-7; T² scaling (20) 1e-6; hand-written event simulation agrees to 1e-13 m.",
     "Can support: does a model infer hidden parameters from context in a known, exactly solvable family?",
     "Cannot support: anything about realistic contact dynamics; oracle and analytic references are not independent of the simulator.",
 ], size=15, gap=8)
-image(s, crop(FIG / "F03_worked_example.png", 0, 0, 0.5, 0.9, "F03_left.png"), 6.9, 2.35, 6.1, 3.4)
+image(s, crop(SLF / "F03_worked_example.png", 0, 0, 0.5, 0.93, "F03s_left.png"), 6.9, 2.35, 6.1, 3.4)
 tb(s, 6.9, 5.75, 6.1, 1.2, "Velocity of the worked example (m=1.0, μ=0.45, F=20 N, T=0.15 s; yellow = force on). Solid: saved replay of the final simulator; dashed: hand-derived piecewise motion. Final displacement 0.79437 m (hand) vs 0.79435 m (replay). Agreement tests the implementation, not physics.", size=12, color=GREY)
 footer(s, "Sources: simulator_evidence/ideal_simulator_H2_gate_packet; reviews/T01/f28ff1e; GUIDE §4")
 notes(s, "SAY: After the contact scene failed, you approved replacing it by explicit 1D Coulomb dynamics inside MuJoCo. We rejected MuJoCo's built-in joint friction because it creeps below the stiction threshold (0.6-0.7 mm). Read the boxed sentence aloud. The 1e-6 agreement is expected and shows correct implementation.\nWHAT IT SUPPORTS: ICL on a known function class, like classic ICL studies, where we know exactly what information suffices.\nLIKELY QUESTIONS: 'Is this circular?' Yes for the physics; the information-content question does not depend on independence. 'Why keep MuJoCo?' Interface and later extension to contact.\nHOUSEKEEPING: the header comment in cube.xml is stale (says frictionloss).")
@@ -151,7 +151,7 @@ table(s, 0.5, 1.35, 6.7, [["Item", "Actual value"],
     ["Optimization", "AdamW 1e-4, wd 0.01, batch 256, clip 1.0, warmup 2k + cosine"],
     ["Run", "150,000 steps, 33.6 min, 1 RTX 4090, 0.56 GPU-h"],
     ["Checkpoint", "best val 0.06137 at step 118,000 (selected)"]], [1.9, 4.8], size=13, rowh=0.52)
-image(s, crop(FIG / "F05_training_curves.png", 0, 0, 0.5, 0.88, "F05_left.png"), 7.4, 1.3, 5.6, 3.1)
+image(s, crop(SLF / "F05_training_curves.png", 0, 0, 0.5, 0.93, "F05s_left.png"), 7.4, 1.3, 5.6, 3.1)
 bullets(s, 7.4, 4.5, 5.6, 2.5, [
     "Train and validation track; no NaN, no early stop.",
     "Flat after ~3k steps: 99.95% of the validation loss is position 0 (no context).",
@@ -163,34 +163,34 @@ notes(s, "SAY: The numbers are read from meta.json and config.json. Normalizatio
 
 # ---- 6 ----
 s = new("E1: context helps from the first push — and the one-push result survives an audit")
-image(s, crop(FIG / "F07_E1_error_vs_context.png", 0, 0, 0.5, 0.88, "F07_left.png"), 0.3, 1.3, 6.4, 3.4)
-image(s, crop(FIG / "F08_c1_audit.png", 0.5, 0, 1.0, 0.86, "F08_right.png"), 6.8, 1.3, 6.2, 3.4)
+image(s, crop(SLS / "E1_error_vs_context_log.png", 0, 0, 0.5, 0.93, "F07s_left.png"), 0.3, 1.3, 6.4, 3.4)
+image(s, crop(SLF / "F08_c1_audit.png", 0.5, 0, 1.0, 0.93, "F08s_right.png"), 6.8, 1.3, 6.2, 3.4)
 bullets(s, 0.5, 4.8, 12.3, 2.2, [
-    "Median error 56% (c=0) → 0.57% (c=1) → 0.34% (c=10). Exact Bayes and the physics fit reach ~1e-7 by c=2; the transformer plateaus (cause untested).",
-    "At c=1 exact Bayes gets 0.46% (MSE 8.2e-5 m²) vs the transformer's 0.57% (1.3e-4 m²): about 1.6× worse in MSE.",
+    "Median error 56% (c=0) → 0.57% (c=1) → 0.34% (c=10). Bayes and the physics fit reach ≲1e-6 by c=2 and ~2e-7 by c=10; the transformer plateaus (cause untested).",
+    "At c=1 exact Bayes (independent calculation; the project's Bayes agrees) gets 0.46% (MSE 8.2e-5 m²) vs the transformer's 0.57% (1.3e-4 m²): about 1.6× worse in MSE.",
     "One push is enough here because the narrow prior truncates the one-parameter family of consistent cubes. Audit: no leakage or indexing defect detected (worse-than-Bayes alone would not prove that).",
 ], size=15, gap=6)
 footer(s, "Left: E1, standardized MSE vs context length c (log), 100 items, best.pt step 118,000. Right: median relative error at c=1 by force gap |F_q−F_c| (transformer, exact Bayes, Bayes posterior sd). Sources: results/v3, c1_audit.")
 notes(s, "SAY: Left: standardized MSE vs context length, log axis; the transformer drops four orders of magnitude at c=1 and then stays flat, while Bayes and the physics fit keep dropping to 1e-7 and below (the full figure with median relative error is figure F07). Right: error by force gap — the transformer tracks exact Bayes but is systematically a bit worse; Bayes' own posterior sd (grey) shows how much uncertainty the prior leaves.\nWHY SO GOOD: In the ideal model one observation gives y1 = A F1 - B; the prior ranges are narrow, so the unresolved direction changes the query by under 1%. A property of the setup, not necessarily of the model.\nLEAKAGE: tested the token path, re-simulated stored pushes, shuffled contexts (error jumps to 71%), scaled d1 by 1% (elasticity 0.995 vs Bayes 1.001), wrote the true query outcome into its slot (prediction unchanged, exactly 0.0). 'No leakage detected' — not 'proof of absence'.\nLIKELY QUESTIONS: 'Worse than Bayes at c=0?' No: 1.50 vs 1.53 m2, within noise. 'Why plateau?' Not tested; hypotheses on slide 9.")
 
 # ---- 7 ----
-s = new("E2: Bayes shows the information effect; the transformer's accuracy floor hides it")
-image(s, crop(FIG / "F09_E2_same_vs_distinct.png", 0, 0, 1, 0.86, "F09_nocap.png"), 0.3, 1.3, 7.9, 3.7)
-bullets(s, 8.4, 1.35, 4.6, 3.7, [
+s = new("E2: Bayes shows the information effect; whether the transformer does at c=4 depends on the checkpoint")
+image(s, crop(SLS / "E2_same_vs_distinct_log.png", 0.5, 0, 1, 0.93, "F09s_right.png"), 0.3, 1.3, 7.9, 3.65)
+bullets(s, 8.4, 1.35, 4.6, 3.6, [
     "New-force query, Bayes: same-force history stays ~1.4e-5; distinct forces fall to ~2e-14.",
-    "Transformer at c=2 matches Bayes' contrast (+5.2e-5 vs +5.25e-5 m²).",
-    "At c=4 it shows none (−9e-6 m², CI includes 0): its floor (2–3e-5) is as large as the effect.",
-], size=15, gap=8)
-table(s, 0.5, 5.15, 7.6, [["Standardized MSE (new-force query)", "c=2", "c=4"], ["Transformer, same-force (B)", "4.1e-5", "2.1e-5"], ["Transformer, distinct-force (D)", "1.9e-5", "2.5e-5"],
-    ["Bayes, same-force (B)", "2.3e-5", "1.4e-5"], ["Bayes, distinct-force (D)", "1e-10", "2e-14"]], [4.1, 1.75, 1.75], size=12, rowh=0.34)
-bullets(s, 8.4, 5.1, 4.6, 1.8, ["E2 as designed, without noise, cannot yet separate information from tokens for this model.", "50 paired items; intervals are over items, not seeds."], size=14, gap=5)
-footer(s, "Solid = same-force context, dotted = distinct-force, every method; log axis. Sources: results/v3 e2_same_vs_distinct.csv, e2_paired.csv.")
-notes(s, "SAY: Solid lines are same-force context, dotted are distinct-force, for every method. In the right panel the blue Bayes curves separate by ten orders of magnitude, so the design works. The red transformer curves stay together near 2e-5. At two observations the transformer's same-minus-distinct gap equals Bayes'; at four it vanishes. Its same-force result is near Bayes; it cannot reach Bayes' distinct-force accuracy because of its own floor.\nWHAT THIS MEANS: we cannot say the transformer ignores diversity. We can say this experiment is limited by precision, which motivates noise (raises Bayes' floor) and a floor diagnosis.\nPAIRED NUMBERS (new-force query, B minus D, squared error m^2): Bayes +5.25e-5 at c=2 (CI 2.5e-5 to 8.5e-5), +3.15e-5 at c=4 (1.9e-5 to 4.6e-5); transformer +5.2e-5 at c=2 (1.5e-5 to 1.0e-4), -9.3e-6 at c=4 (-6.6e-5 to +2.8e-5).\nLIKELY QUESTIONS: 'Did the transformer learn diversity?' At c=2 it behaves like Bayes. 'Why different at c=4?' Untested.")
+    "Transformer at c=2: B−D = +5.2e-5 m² [1.5e-5, 1.0e-4], consistent with Bayes' +5.25e-5.",
+    "At c=4 it depends on the checkpoint: best.pt −9.3e-6 (interval includes 0); last.pt +3.0e-5 [4.7e-6, 6.2e-5], close to Bayes' +3.15e-5.",
+], size=14, gap=7)
+table(s, 0.5, 5.0, 7.7, [["Standardized MSE, new-force query", "c=2", "c=4"], ["Transformer best.pt: same-force (B) / distinct (D)", "4.1e-5 / 1.9e-5", "2.1e-5 / 2.5e-5"], ["Transformer last.pt: B / D", "4.4e-5 / 2.6e-5", "2.5e-5 / 1.2e-5"],
+    ["Bayes: same-force (B) / distinct (D)", "2.3e-5 / 1e-10", "1.4e-5 / 2e-14"]], [4.1, 1.8, 1.8], size=12, rowh=0.38)
+bullets(s, 8.4, 5.0, 4.6, 1.9, ["E2 at c=4 is inconclusive for this model: one seed, two checkpoints that disagree. Either way the transformer's distinct-force error stays far above Bayes.", "50 paired items; intervals are over items, not seeds."], size=13, gap=4)
+footer(s, "New-force query panel only (familiar-force panel: guide §8.3). Solid = same-force context, dotted = distinct-force, every method; log axis; shown: best.pt (primary). Sources: results/v3 and v4 (last.pt) e2_same_vs_distinct.csv, e2_paired.csv.")
+notes(s, "SAY: Solid lines are same-force context, dotted are distinct-force, for every method (the figure shows the primary checkpoint, best.pt). In the right panel the blue Bayes curves separate by ten orders of magnitude, so the design works. The red transformer curves stay together near 2e-5 for best.pt.\nTHE IMPORTANT CAVEAT: the c=4 contrast changes with the checkpoint. best.pt: B minus D = -9.3e-6 m2, interval [-6.6e-5, +2.8e-5] includes 0. last.pt: +3.0e-5, interval [4.7e-6, 6.2e-5], close to Bayes' +3.15e-5. With a single seed we cannot say which is representative, so E2 at c=4 is inconclusive.\nAT c=2 both checkpoints give a positive B-D difference: best.pt +5.2e-5 [1.5e-5, 1.0e-4] vs Bayes +5.25e-5 [2.5e-5, 8.5e-5]; the interval is about 7x wide, so say 'consistent with', not 'matches'.\nIN BOTH CASES the transformer's distinct-force error stays far above Bayes' 2e-14: it does not use diversity to the extent an exact reasoner can.\nLIKELY QUESTIONS: 'Did the transformer learn diversity?' Partly/unclear. 'Why does the checkpoint matter?' Selection by validation loss is dominated by position 0 (slide 5); that is the reason to report context-conditioned validation loss.")
 
 # ---- 8 ----
 s = new("E3 and E4 (both preliminary)")
-image(s, crop(FIG / "F10_E3_redundancy.png", 0, 0, 0.5, 0.91, "F10_left.png"), 0.3, 1.3, 6.3, 3.2)
-image(s, crop(FIG / "F12_e4_prior_comparison.png", 0.5, 0, 1.0, 0.9, "F12_right.png"), 6.8, 1.3, 6.2, 3.2)
+image(s, crop(SLS / "E3_redundancy_log.png", 0, 0, 0.5, 0.93, "F10s_left.png"), 0.3, 1.3, 6.3, 3.2)
+image(s, crop(SLF / "F12_e4_prior_comparison.png", 0.5, 0, 1.0, 0.93, "F12s_right.png"), 6.8, 1.3, 6.2, 3.2)
 tb(s, 6.8, 4.28, 6.2, 0.3, "red: transformer • blue: Bayes, training prior • green: Bayes, broad prior (y: median relative error, log)", size=11, color=GREY)
 bullets(s, 0.5, 4.6, 6.1, 2.4, [
     "E3: appending exact copies leaves every reference unchanged but moves the transformer's prediction by 3.2 / 1.9 / 2.6 mm (k = 1/2/4, mean; max 11 mm); its error does not change materially.",
@@ -208,16 +208,16 @@ s = new("Limitations and recommended next experiments")
 bullets(s, 0.5, 1.35, 5.9, 5.6, [
     "Idealized dynamics; realistic contact not tested (simulator failure is a finding).",
     "One training seed; intervals are across items, not seeds.",
-    "No observation noise: E3's main question and E2's information effect are untested/hidden.",
+    "No observation noise: E3's main question is untested and E2's information effect is comparable to the model's accuracy.",
     "Small tests (100/50/50/50); structured test histories differ from training histories.",
-    "Checkpoint selection driven by the no-context position; last.pt shifts c ≥ 1 MSE by 1–18%.",
+    "Checkpoint selection driven by the no-context position; last.pt shifts c ≥ 1 MSE by 1–18% and flips E2's c=4 contrast.",
     "Short, small training (1,000 cubes, 34 min); plateau cause untested.",
     "Review gaps: control-authored scripts and the final packet were audited only partly; the Bayes reviewer's adversarial synthetic set was 19 of 23 cases complete.",
 ], size=14, gap=5)
 tb(s, 6.7, 1.3, 6.2, 0.4, "Next experiments, ranked (resource figures are estimates)", size=16, bold=True, color=BLUE)
 bullets(s, 6.7, 1.95, 6.2, 5.0, [
-    "1. Observation noise + diagnose the accuracy floor. Question: does the model value independent information over copies/length? Noise lifts Bayes' floor above the transformer's. Needs the noise path, retraining; ~3.4 GPU-h for 3 seeds × 2 noise levels.",
-    "2. Why the plateau? Per-position loss weights / log target, 10× more cubes, longer training, full-precision matmul. ~2.4 GPU-h for 4 ablations.",
+    "1. Observation noise + diagnose the accuracy floor. Question: does the model value independent information over copies/length? Noise is expected to lift Bayes' error above the transformer's. Needs the noise path, retraining; ~3.4 GPU-h for 3 seeds × 2 noise levels.",
+    "2. Why the plateau? Per-position loss weights / log target, 10× more cubes, longer training, full-precision matmul. ~2.4 GPU-h for 4 ablations (assumes ~0.6 each).",
     "3. Broader prior and action ranges so one push is not decisive. One dataset + one run ≈ 0.6 GPU-h.",
     "Not in the top three: repairing the contact simulator — answers realism, not information content; later extension.",
 ], size=14, gap=7)
@@ -267,12 +267,14 @@ notes(s, "Reproduction at commit 5e0ae3f. 906/1000 rotate >1 deg, 188 >10, 105 >
 s = backup("attempted simulator fixes")
 table(s, 0.5, 1.35, 12.3, [["Attempt", "Outcome", "Decision"],
  ["solimp tweak", "met resting-height tolerance; hop/tumble remained", "kept as softness choice, not a fix"], ["~30 contact/solver settings", "all ~180° rotation/no contact, or could not settle", "rejected"],
- ["pair solreffriction", "0.4–1.9° but viscous friction; d off 7%–1000%", "rejected"], ["x–y slide only", "N = 0 exactly ⇒ no friction", "rejected"],
+ ["pair solreffriction", "0.4–1.9° but viscous friction; d off ~7%–1000% (writer's text; its table says 6.6%–383%)", "rejected"], ["x–y slide only", "N = 0 exactly ⇒ no friction", "rejected"],
  ["x–y–z slides (free/ranged/spring/damper)", "contact dropouts; N/mg 0–110", "rejected"], ["armature 1000 kg", "flat, d within 0.37% median; contact 9–20%, N spikes ≈100 m g", "rejected"],
  ["MuJoCo frictionloss = μ m g", "creeps 0.63–0.70 mm below threshold", "rejected"], ["explicit Coulomb force, 1D", "exact ideal law; all checks passed", "accepted"]], [3.6, 6.1, 2.6], size=13, rowh=0.55)
 notes(s, "Numbers for fixes are the writers' saved measurements (docs/questions/T01.md, docs/evidence); only the failure of the original scene was reproduced for this packet.")
 s = backup("parameter ambiguity: one observation cannot separate two cubes, yet predictions agree"); image(s, FIG / "F04_parameter_ambiguity.png", 0.5, 1.4, 12.3, 5.3)
 notes(s, "Cube A (1.0 kg, 0.45) and cube B (1.2 kg, 0.3244) give identical displacement at F=20 N, T=0.15 s but differ by 0.75% at F=24 N. This is why one push can predict well while parameters stay ambiguous.")
+s = backup("E2 with last.pt (checkpoint sensitivity)"); image(s, FIG / "B02_E2_last_checkpoint_sensitivity.png", 0.4, 1.35, 12.5, 5.0)
+notes(s, "Sensitivity run only (last.pt, step 150,000). Paired B-D at c=4: +3.0e-5 m2 [4.7e-6, 6.2e-5] vs best.pt -9.3e-6 [-6.6e-5, 2.8e-5]; at c=2 +4.4e-5 [3.8e-6, 9.4e-5]. Familiar-force cells: A 2.7e-5/7.7e-6/5.7e-6 (c=1/2/4), C 1.4e-5/1.1e-5.")
 s = backup("E4 detail"); image(s, FIG / "F11_E4_heavy_ood.png", 0.4, 1.4, 12.5, 5.3)
-notes(s, "Standardized MSE in the figure; relative errors are in the table on slide 8 notes and the guide. 50 heavy cubes, 1 seed.")
+notes(s, "Standardized MSE in the figure; relative errors are in the guide's §8.5 table (heavy c=10: 2.27% best.pt, 2.08% last.pt vs 0.34% / 0.36% in-distribution). 50 heavy cubes, 1 seed.")
 prs.save(PK / "PRESENTATION_meeting.pptx"); print("saved", len(prs.slides), "slides")

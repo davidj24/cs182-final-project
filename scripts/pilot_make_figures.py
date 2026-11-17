@@ -10,6 +10,7 @@ Bayes appears only if the results CSVs contain it (valid Bayes only; T06 drops i
 from __future__ import annotations
 
 import argparse
+import os
 import textwrap
 from pathlib import Path
 
@@ -49,6 +50,8 @@ def _series(ax, d, xlabel, ylabel, title):
 
 
 def cap(fig, txt, fs=7, bold=False):
+    if os.environ.get("PILOT_FIG_NO_CAPTION"):  # slide versions: the caption goes in the slide footer instead
+        return
     fig.text(0.01, 0.005, textwrap.fill(txt, 170), fontsize=fs, va="bottom", weight="bold" if bold else "normal")
 
 
@@ -61,8 +64,12 @@ def _coverage(d):
 
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--results-dir", required=True); ap.add_argument("--out-dir", required=True)
-    a = ap.parse_args(); R = Path(a.results_dir); O = Path(a.out_dir); O.mkdir(parents=True, exist_ok=False)
+    ap = argparse.ArgumentParser(); ap.add_argument("--results-dir", required=True); ap.add_argument("--out-dir", required=True); ap.add_argument("--tag", default="", help="identifies the checkpoint/results in every caption")
+    a = ap.parse_args()
+    global NOTE
+    if a.tag:
+        NOTE = a.tag + " — " + NOTE
+    R = Path(a.results_dir); O = Path(a.out_dir); O.mkdir(parents=True, exist_ok=False)
     # E1: standardized MSE and median relative error vs c
     ser = pd.read_csv(R / "e1_error_vs_context.csv", comment="#"); met = pd.read_csv(R / "e1_metrics.csv", comment="#")
     fig, ax = plt.subplots(1, 2, figsize=(11, 4.2))

@@ -7,11 +7,12 @@ import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
 
-PK = Path(sys.argv[1]); FIG = PK / "figures"; CSV = PK / "csv"; DATA = Path(os.environ["CS282A_DATA"]); G = 9.81
+PK = Path(sys.argv[1]); FIG = Path(sys.argv[2]) if len(sys.argv) > 2 else PK / "figures"; FIG.mkdir(exist_ok=True); CSV = PK / "csv"; DATA = Path(os.environ["CS282A_DATA"]); G = 9.81
 CAP = "IDEALIZED 1D COULOMB DYNAMICS (not realistic contact). "
 
 
 def cap(fig, t, fs=7):
+    if os.environ.get("PILOT_FIG_NO_CAPTION"): return
     import textwrap; fig.text(0.01, 0.005, textwrap.fill(t, 170), fontsize=fs, va="bottom")
 
 
@@ -49,7 +50,7 @@ fig.tight_layout(); fig.savefig(new("F02_token_diagram.png"), dpi=170); plt.clos
 # ---------- F03 worked example: analytic piecewise vs final simulator replay ----------
 m, mu, F, k = 1.0, 0.45, 20.0, 150; T = k * 1e-3; a1 = (F - mu * m * G) / m; a2 = mu * G
 z = np.load(DATA / "pilot" / "sim_frames" / "20261116_205732" / "middle.npz", allow_pickle=True)
-t = z["t"]; pos = z["pos"][:, 0]; vel = z["vel"]; x0 = pos[0]
+t = z["t"]; pos = z["pos"][:, 0]; vel = z["vel"]; x0 = 0.0  # the replay stores positions AFTER each step; the push starts from x = 0
 def an_v(tt): return np.where(tt <= T, a1 * tt, np.maximum(a1 * T - a2 * (tt - T), 0))
 def an_x(tt):
     vt = a1 * T; xT = 0.5 * a1 * T**2; tc = np.clip(tt - T, 0, vt / a2); return np.where(tt <= T, 0.5 * a1 * tt**2, xT + vt * tc - 0.5 * a2 * tc**2)
