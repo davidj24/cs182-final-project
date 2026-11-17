@@ -77,17 +77,19 @@ def main():
     fig, ax = plt.subplots(1, len(panels), figsize=(5.4 * len(panels), 4.2), squeeze=False)
     for i, p in enumerate(panels):
         for st, ls in (("same-force", "-"), ("distinct-force", ":")):
-            s = d[(d.panel == p) & (d["style"] == st)]
+            sub = d[(d.panel == p) & (d["style"] == st)]
             for m, (col, mk, lab) in STYLE.items():
-                t = s[(s.method == m) & (s.value > 0)].sort_values("x")
-                if t.empty or m in ("analytic_true",): continue
-                if m != "transformer" and st == "distinct-force": continue
-                ax[0, i].plot(t.x, t.value, color=col, marker=mk, ls=ls if m == "transformer" else "--", lw=2 if m == "transformer" else 1.1,
-                              label=(f"{lab} — {st}" if m == "transformer" else (lab if st == "same-force" else None)))
+                if m in ("analytic_true", "oracle"):
+                    continue
+                t = sub[(sub.method == m) & (sub.value > 0)].sort_values("x")
+                if t.empty:
+                    continue
+                ax[0, i].plot(t.x, t.value, color=col, marker=mk, ls=ls, lw=2.2 if m == "transformer" else 1.3, ms=6,
+                              label=f"{lab} — {st}")
         ax[0, i].set_yscale("log"); ax[0, i].set_title(f"E2: {p}", fontsize=10); ax[0, i].set_xlabel("context length c")
         ax[0, i].set_xticks(sorted(set(d[d.panel == p].x))); ax[0, i].grid(True, alpha=0.25); ax[0, i].spines[["top", "right"]].set_visible(False)
         ax[0, i].set_ylabel("standardized MSE (÷ train Var(d))"); ax[0, i].legend(fontsize=7, frameon=False)
-    cap(fig, "Solid = same-force context, dotted = distinct-force (transformer). 50 paired items. " + NOTE + "  Undetermined: " + _coverage(d[d["style"] == "same-force"]), fs=6)
+    cap(fig, "Solid = same-force context, dotted = distinct-force context (every method). 50 paired items. " + NOTE + "  Undetermined: " + _coverage(d), fs=6)
     fig.tight_layout(rect=(0, 0.09, 1, 1)); fig.savefig(O / "E2_same_vs_distinct_log.png", dpi=160); plt.close(fig)
     # E3
     d = pd.read_csv(R / "e3_redundancy.csv", comment="#"); panels = list(dict.fromkeys(d.panel))
