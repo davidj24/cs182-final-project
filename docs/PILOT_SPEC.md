@@ -29,6 +29,7 @@ and in configs/pilot/initial_e2e_2026_11_16.json (created by T00).
   counted and reported, never dropped. Only broken physics (friction, force timing, settling,
   mass/inertia) stops data generation. Target space is raw standardized; a log target is not
   adopted tonight (it may be reported as a diagnostic only).
+- Assumption A4 (user decision, 2026-11-16): the simulator scene is TRANSLATION-ONLY (rotation locked, no hopping), a deliberate deviation from the free-cube scene of PROTOCOL §4, because MuJoCo soft contact hops/tumbles a fast-sliding free cube (T01 review C1). Consequences: max_rotation_deg is recorded but vacuous; the sim-vs-analytic comparison tests friction/timing, not 3D contact, and must be described that way in SUMMARY.
 - Assumption A3: dollar/agent spend cannot be measured and is NOT enforced; launches and GPU-hours are.
 
 ---
