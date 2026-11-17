@@ -1,0 +1,33 @@
+# standardized MSE (smse_trainvar) denominator: training-set Var(d) = 2.333411e+00 m^2 (meta.json normalization d_obs std squared); same for every method
+# MSE is against the clean MuJoCo query displacement only; mse_m2 in m^2
+# not_determined / blocked predictions are counted in n_not_determined / n_blocked and excluded from error means, never imputed
+# displacement tertile edges (m): <= 6.726786e-01, <= 1.579990e+00, above
+# bayes: available; nmse_bayes_c0 = MSE / D with D = 1.749013e+00 m^2 (training-prior Bayes at c=0, same item set); gap_to_bayes_m2 = MSE_method - MSE_bayes on shared valid items
+# Preliminary no-noise redundancy test. This does not test the benefit of independent noisy repeated measurements.
+# dataset: /home/exx/soomi/soomi_projects/cs282a_project/cs282a_data/datasets/pilot_v1 (meta version = pilot_v1; source git SHA = f15567cae923c0b9bcd6dabc7d0119e2017af70a)
+# Var(d) read from meta.json key normalization.d_obs.std
+# model: pilot_load_run:load
+# npz sha256 verified against meta.json: e1.npz, e2.npz, e3.npz, e4.npz
+# reference cache: code_hash = 2be68e0a01a0aef9 (reference/*.py, physics.py, eval/predictors.py, docs/DECISIONS.md)
+# reference cache hits: 0 (supplied by: none (all computed in this run)); misses: 12
+method,k,n_changes,mean_abs_change_m,max_abs_change_m
+transformer,0,50,0.0,0.0
+transformer,1,50,0.0031820202664485085,0.011214156106434281
+transformer,2,50,0.0019267316042174932,0.006208093304655549
+transformer,4,50,0.0025790200303493858,0.011387331535646972
+oracle,0,50,0.0,0.0
+oracle,1,50,0.0,0.0
+oracle,2,50,0.0,0.0
+oracle,4,50,0.0,0.0
+analytic_true,0,50,0.0,0.0
+analytic_true,1,50,0.0,0.0
+analytic_true,2,50,0.0,0.0
+analytic_true,4,50,0.0,0.0
+physics_fit,0,50,0.0,0.0
+physics_fit,1,50,0.0,0.0
+physics_fit,2,50,0.0,0.0
+physics_fit,4,50,0.0,0.0
+bayes_train,0,50,0.0,0.0
+bayes_train,1,50,0.0,0.0
+bayes_train,2,50,0.0,0.0
+bayes_train,4,50,0.0,0.0

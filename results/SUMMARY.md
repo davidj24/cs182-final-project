@@ -1,0 +1,40 @@
+# Pilot summary — `initial_e2e_2026_11_16` (for the project meeting; not a final paper)
+
+**Everything below is about idealized 1D Coulomb dynamics implemented in MuJoCo, one training seed (0), no observation noise, 50–100 test items per experiment.**
+Full explanation: the meeting packet's `GUIDE_READ_FIRST.md`; every figure/CSV named here is in `results/pilot_v1/` (small copies) or the packet.
+
+## What we ran
+* **Simulator.** The original free-cube contact scene failed validation (hopping, loss of contact, tumbling; Section "Findings" below) and, with the user's approval, was replaced by an idealized 1D scene: one x slide joint, push and Coulomb friction applied explicitly, no contact (`assets/cube.xml`, `src/cs182_icl/sim/rollout.py`; reviewed at `f28ff1e`).
+* **Data.** `pilot_v1` (hash `f722c512bae19c386748f9396fb85a5c968e06fa7ac77f728a36832833559918`, generated from clean source `f15567c`, seed 0, no noise): 1,000 training cubes × 32 pushes; 100 validation cubes (1,000 fixed rows); tests E1 100, E2 50 (450 rows), E3 50 (200 rows), E4 50 heavy cubes; disjoint cubes; train-only normalization.
+* **Model/training.** One GPT-2-style causal transformer (12 layers, d=256, 8 heads, 9,485,057 parameters, 22 tokens), AdamW 1e-4, batch 256, 150,000 steps in 33.6 min on one RTX 4090 (0.56 GPU-h), seed 0, source `e6c51afba43894d75c544243be6bcddc6acb27b1` (clean). Selected checkpoint `best.pt` = step 118,000 (sha256 `6101448e…f230`); `last.pt` (step 150,000) used only as a sensitivity run.
+* **Evaluation.** E1–E4 with the same frozen checkpoint, evaluation commit `2f3d53ddb406442f949216dbced92622983b8a50` (clean), results `results/v3` (best) and `results/v4` (last.pt sensitivity). References: simulator oracle, analytic with true parameters, physics fit ("not determined" when under-identified), training-prior Bayes (valid for the declared ideal dynamics only), broad-prior Bayes (supplementary, E4/E1 at c = 0,2,10).
+
+## What is trustworthy
+* Simulator implementation: agrees with the closed form to ~1e-6 over 2,000 settings (median 3.4e-7, 95th pct 2.4e-6), dt-halving 1.8e-7, T² scaling 1e-6, hand-written event simulation 1e-13 m (recomputed independently by a reviewer). **This agreement is by construction, not independent validation of contact physics.**
+* Training: no NaN, no early stop; validation tracks training; both saved checkpoints reproduce their logged validation losses (loader check); causality, leakage, normalization, overfit tests passed; an independent reviewer ran its own leakage perturbations (max change 0.0).
+* Data: reviewer re-simulated 1,400 stored pushes bit-identically; cube ids disjoint; normalization equals an independent train-only recomputation; construction rules for E2/E3 hold.
+* Bayes: matches an independent implementation (median relative difference 2e-15 over 80 real item cases; 1e-9 or better on 19 adversarial cases; reviewer's synthetic set was 19/23 complete when it reported).
+* Evaluation harness: hand-calculated fixture verified; Bayes-as-model test runs unconditionally; figure label bugs found by an audit were fixed (verified by the controller, not re-reviewed).
+
+## Preliminary findings (single seed; item-level uncertainty only)
+* **E1 (100 items).** Median relative error 56.3% (c=0) → 0.570% (c=1) → 0.426% (c=2) → 0.437% (c=4) → 0.334% (c=8) → 0.338% (c=10). MSE (m²): 1.50 → 1.31e-4 → 6.9e-5 → 7.7e-5 → 5.7e-5 → 6.7e-5. Training-prior Bayes: 1.53 → 8.2e-5 → 7.1e-7 → 5.0e-11 → 2.0e-11 → 6.2e-12 m². The transformer uses context immediately but **plateaus from c=2** while the exact references keep improving.
+* **One-observation audit.** No leakage or indexing defect detected. Exact Bayes at c=1 (independent numpy): 0.458% median, MSE 8.2e-5 m² vs transformer 0.570%, 1.31e-4 m² (1.6× worse; closer on 31/100 items). One push is highly informative because the narrow prior truncates the family of consistent cubes.
+* **E2 (50 paired items).** New-force query: Bayes same-force 2.3e-5 / 1.4e-5 (c=2/4) vs distinct-force 1e-10 / 2e-14 (standardized MSE). Transformer: same-force 4.1e-5 / 2.1e-5; distinct-force 1.9e-5 / 2.5e-5. Paired same−distinct (m²): Bayes +5.25e-5 (c=2), +3.15e-5 (c=4); transformer +5.2e-5 (c=2, CI excludes 0), −9.3e-6 (c=4, CI includes 0).
+* **E3 (50 items, no-noise copies).** References unchanged; transformer prediction shifts 3.2 / 1.9 / 2.6 mm on average (k = 1/2/4), error not materially changed. *Preliminary no-noise redundancy test. This does not test the benefit of independent noisy repeated measurements.*
+* **E4 (50 heavy cubes, preliminary heavy-OOD behavior).** Context gain persists (median relative error 544% → 2.3%), but relative error is ~7× the in-distribution value (2.3% vs 0.34% at c=10); broad-prior Bayes is essentially exact there; training-prior Bayes is biased (truncated at m=1.5).
+
+## What surprised us (survived a correctness check)
+* One observation already gives 0.57% error (audited; explained by the prior).
+* The transformer's error floor (≈ 2–3e-5 standardized MSE) is as large as the E2 information effect, so the intended contrast is invisible at c=4 even though Bayes shows it clearly.
+* 99.95% of the validation loss is the no-context position, so best-checkpoint selection ignores context-conditioned performance.
+* The contact scene failed in a precise way: whenever in contact, friction = μN exactly, but the normal force was not m g (contact flickering, hopping, tumbling in 105/1000 pushes), also with no applied force.
+
+## Limitations
+One training seed • small training set (1,000 cubes) • short training run (34 min; 150k steps exceeds PROTOCOL §7's 100k "ceiling", set from the benchmark per PILOT_SPEC §J2) • no observation-noise model • small E2/E3/E4 test sets • structured-context distribution shift between training and test histories • idealized dynamics (original contact scene failed) • checkpoint selection driven by position 0 • review gaps: control-authored scripts only partly audited; the final packet is fact-checked as stated in `provenance/FACT_CHECK.md`.
+
+## What should we do next? (ranked; resource figures are estimates from measured rates: 150k steps = 33.6 min on one RTX 4090)
+1. **Observation noise.** *Question:* does the model value independent information over copies and length? *Why today's result motivates it:* without noise, Bayes' information effect (~1e-5) is no larger than the transformer's floor (2–3e-5), and E3 cannot separate copies from fresh repeats. *Experiment:* noise condition (σ_d ≈ 0.05 m) with fresh vs copied repeats, E2/E3 repeated. *Discriminating result:* under noise Bayes improves ∝ 1/√n for fresh repeats and not at all for copies; does the transformer follow? *Cost:* ~3.4 GPU-h (3 seeds × 2 noise levels); Bayes must be re-validated at σ_d > 0.
+2. **Diagnose the accuracy floor.** *Question:* why does the transformer plateau at ~0.3–0.4% from c=2 (cause untested)? *Why:* the plateau gates the value of experiment 1. *Experiment:* per-position loss weights / log target, 10× more cubes, longer training, full-precision matmul. *Discriminating result:* whichever change lowers the plateau identifies the cause. *Cost:* ~2.4 GPU-h for four ablations.
+3. **Broader prior and action ranges.** *Question:* is the narrow (m, μ) prior making one observation too decisive? *Experiment:* new dataset and training run using the broad prior already implemented in Bayes. *Discriminating result:* gradual improvement with c and a larger E2 contrast relative to the floor. *Cost:* ~0.6 GPU-h.
+
+Not in the top three: repairing the contact simulator answers a question about realism, not information content; keep as a later extension.

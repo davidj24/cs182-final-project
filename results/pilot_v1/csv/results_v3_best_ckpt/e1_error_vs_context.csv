@@ -1,0 +1,43 @@
+# standardized MSE (smse_trainvar) denominator: training-set Var(d) = 2.333411e+00 m^2 (meta.json normalization d_obs std squared); same for every method
+# MSE is against the clean MuJoCo query displacement only; mse_m2 in m^2
+# not_determined / blocked predictions are counted in n_not_determined / n_blocked and excluded from error means, never imputed
+# displacement tertile edges (m): <= 5.899733e-01, <= 1.308387e+00, above
+# bayes: available; nmse_bayes_c0 = MSE / D with D = 1.526472e+00 m^2 (training-prior Bayes at c=0, same item set); gap_to_bayes_m2 = MSE_method - MSE_bayes on shared valid items
+# experiment: E1, context = first c of one ordered 10-push list (paired)
+# dataset: /home/exx/soomi/soomi_projects/cs282a_project/cs282a_data/datasets/pilot_v1 (meta version = pilot_v1; source git SHA = f15567cae923c0b9bcd6dabc7d0119e2017af70a)
+# Var(d) read from meta.json key normalization.d_obs.std
+# model: pilot_load_run:load
+# npz sha256 verified against meta.json: e1.npz, e2.npz, e3.npz, e4.npz
+# reference cache: code_hash = 2be68e0a01a0aef9 (reference/*.py, physics.py, eval/predictors.py, docs/DECISIONS.md)
+# reference cache hits: 0 (supplied by: none (all computed in this run)); misses: 4
+panel,style,method,x,value,se,n_ok,n
+main,all,transformer,0,0.6421218944123508,0.15976094615127187,100,100
+main,all,oracle,0,0.0,0.0,100,100
+main,all,analytic_true,0,7.172940832104486e-14,5.10284778471416e-15,100,100
+main,all,physics_fit,0,nan,nan,0,100
+main,all,bayes_train,0,0.6541802800049439,0.16074887283100667,100,100
+main,all,transformer,1,5.6205662137968866e-05,1.3149474798933606e-05,100,100
+main,all,oracle,1,0.0,0.0,100,100
+main,all,analytic_true,1,7.172940832104486e-14,5.10284778471416e-15,100,100
+main,all,physics_fit,1,nan,nan,0,100
+main,all,bayes_train,1,3.5187063643592357e-05,9.676548908909384e-06,100,100
+main,all,transformer,2,2.9607977536455753e-05,5.944596074910696e-06,100,100
+main,all,oracle,2,0.0,0.0,100,100
+main,all,analytic_true,2,7.172940832104486e-14,5.10284778471416e-15,100,100
+main,all,physics_fit,2,7.076889089038241e-14,1.8176171749439982e-14,56,100
+main,all,bayes_train,2,3.052364084107264e-07,2.881179147067087e-07,100,100
+main,all,transformer,4,3.308436573877098e-05,6.376635793784753e-06,100,100
+main,all,oracle,4,0.0,0.0,100,100
+main,all,analytic_true,4,7.172940832104486e-14,5.10284778471416e-15,100,100
+main,all,physics_fit,4,5.632282663827424e-14,1.2809516833709755e-14,99,100
+main,all,bayes_train,4,2.1382931626163588e-11,1.4205213022642647e-11,100,100
+main,all,transformer,8,2.4428636203823714e-05,6.135511676266005e-06,100,100
+main,all,oracle,8,0.0,0.0,100,100
+main,all,analytic_true,8,7.172940832104486e-14,5.10284778471416e-15,100,100
+main,all,physics_fit,8,2.882511867288177e-14,3.3915725429242154e-15,100,100
+main,all,bayes_train,8,8.418884731724757e-12,8.322299928188693e-12,100,100
+main,all,transformer,10,2.8731287010545586e-05,8.356358708924676e-06,100,100
+main,all,oracle,10,0.0,0.0,100,100
+main,all,analytic_true,10,7.172940832104486e-14,5.10284778471416e-15,100,100
+main,all,physics_fit,10,2.650164740042296e-14,3.2110568215755835e-15,100,100
+main,all,bayes_train,10,2.6698221926046762e-12,2.6148077108858933e-12,100,100
