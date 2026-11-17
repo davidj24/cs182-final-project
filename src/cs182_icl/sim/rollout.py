@@ -215,7 +215,7 @@ def simulate_batch(items, *, workers: int = MAX_WORKERS, dt: float = DT, seed: i
     if workers == 1 or len(chunks) <= 1:
         parts = [_work(c) for c in chunks]
     else:
-        with mp.get_context("spawn").Pool(workers) as pool:
+        with mp.get_context("fork" if "fork" in mp.get_all_start_methods() else None).Pool(workers) as pool:
             parts = pool.map(_work, chunks, chunksize=1)
     for part in parts:
         for i, r in part:
