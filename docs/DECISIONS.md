@@ -23,3 +23,5 @@ Each entry: value | gate | date | evidence path under $CS282A_DATA.
 | Accepted source commit for main runs | set before first long run | H7 | | |
 
 tau_model(a) = r_model * f(theta, a) + tau_abs (PROTOCOL §8).
+| Physics-fit fit space | regress d on (F^2T^2, -FT^2) (PROTOCOL 8); line-form only as sensitivity | pilot | 2026-11-16 | T03 review M3 |
+| Physics-fit distinct-force tolerance | >= 3 N force span among >= 2 moving pushes; moving = d_obs > 1e-6 m | pilot | 2026-11-16 | T03 review M2 |
