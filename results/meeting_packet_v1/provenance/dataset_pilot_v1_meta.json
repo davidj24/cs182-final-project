@@ -1,0 +1,179 @@
+{
+  "version": "pilot_v1",
+  "dataset_version": "pilot_v1",
+  "pilot_config_path": "/home/exx/soomi/soomi_projects/cs282a_project/cs282a_wt/data/configs/pilot/initial_e2e_2026_11_16.json",
+  "pilot_config_sha256": "a58f8e4605aa4d49533e0db6c27fe378e831e507a9f64a651fbbb1316ab88654",
+  "generation_seed": 0,
+  "sim_workers": 16,
+  "source_git_sha": "f15567cae923c0b9bcd6dabc7d0119e2017af70a",
+  "source_tree_clean": true,
+  "dt": 0.001,
+  "g": 9.81,
+  "noise_sigma_d": 0.0,
+  "ranges": {
+    "m": [
+      0.5,
+      1.5
+    ],
+    "m_heavy": [
+      1.5,
+      2.0
+    ],
+    "mu": [
+      0.3,
+      0.6
+    ],
+    "F": [
+      13.0,
+      26.0
+    ],
+    "k": [
+      100,
+      200
+    ],
+    "E2_E3_query_F": [
+      17.0,
+      22.0
+    ],
+    "near_N": 3.0,
+    "e3_base_separation_N": 6.0
+  },
+  "sizes": {
+    "train": 1000,
+    "val": 100,
+    "e1": 100,
+    "e2": 50,
+    "e3": 50,
+    "e4": 50,
+    "val_rows": 1000
+  },
+  "counts": {
+    "train": 1000,
+    "val": 100,
+    "e1": 100,
+    "e2": 450,
+    "e3": 200,
+    "e4": 50,
+    "e4_cellD": 50
+  },
+  "cube_id_ranges": {
+    "train": [
+      0,
+      1000
+    ],
+    "val": [
+      1000,
+      1100
+    ],
+    "e1": [
+      1100,
+      1200
+    ],
+    "e2": [
+      1200,
+      1250
+    ],
+    "e3": [
+      1250,
+      1300
+    ],
+    "e4": [
+      1300,
+      1350
+    ]
+  },
+  "npz_sha256": {
+    "train.npz": "0844572469962cf95f43e0bf929e8e8eeee74f4ab2e7e1a92e69c9f278ebfc3c",
+    "val.npz": "6f8f211f5a9e85edd077bc4e5b9326a9cf83e57c580cfec0ecc9930754ca960b",
+    "e1.npz": "a1663884060d7a6efbf49c4f5ca429784a055c3555b5e1ee1b742e4d839be63e",
+    "e2.npz": "7795c445d8089eca2c5519529832560b05259ea31b0d400b6cf7b37ea77fcfc8",
+    "e3.npz": "f1059be066ef9531d0896d051f3f3a5ba0d57ca49fcabbeb39fe0c9b602650d3",
+    "e4.npz": "06e3308c6bd9b0360bd8d354358ba672107fe2fa888aa49b4ba0fc0b2742763b",
+    "e4_cellD.npz": "f86af27bdaf9a90278bf39c28748229bf2620632a069b998c1b36f296613731b"
+  },
+  "content_sha256": {
+    "train.npz": "355fe4164c93a2f7df644358a129c03cc7783c6579f32d29c40350c45a7a5b45",
+    "val.npz": "11f221acd1df89c7e9f9577445cdc7b0b66a2750868f5a33a47da82ac76bde35",
+    "e1.npz": "f6055aa58dcdc2587814342144acd1b8ca451223b436acebfb7bd0948365b771",
+    "e2.npz": "44f52bf5d881244ab6676720e6acb51bf332bd8c4b026b8f8882acfc8de48a08",
+    "e3.npz": "db5e1506121c343ae5397ea380d3576503ba553465625afc37ec1048485aa212",
+    "e4.npz": "42002588f3f30574506cbc8c4f3640459ef7ae507b38f9754d012d2630f18c90",
+    "e4_cellD.npz": "fee2f2a8717730043d7877d9a0b71dac7c6f69d7e0b4b854a5a95affc89cc78c"
+  },
+  "flags": {
+    "train": {
+      "rollouts": 32000,
+      "timed_out": 0,
+      "rotation_gt_1deg": 0
+    },
+    "val": {
+      "rollouts": 3200,
+      "timed_out": 0,
+      "rotation_gt_1deg": 0
+    },
+    "e1": {
+      "rows": 100,
+      "unique_context_measurements": 1000,
+      "timed_out_counted": 0,
+      "rotation_gt_1deg_counted": 0
+    },
+    "e2": {
+      "rows": 450,
+      "unique_context_measurements": 1250,
+      "timed_out_counted": 0,
+      "rotation_gt_1deg_counted": 0
+    },
+    "e3": {
+      "rows": 200,
+      "unique_context_measurements": 100,
+      "timed_out_counted": 0,
+      "rotation_gt_1deg_counted": 0
+    },
+    "e4": {
+      "rows": 50,
+      "unique_context_measurements": 500,
+      "timed_out_counted": 0,
+      "rotation_gt_1deg_counted": 0
+    },
+    "e4_cellD": {
+      "rows": 50,
+      "unique_context_measurements": 100,
+      "timed_out_counted": 0,
+      "rotation_gt_1deg_counted": 0
+    }
+  },
+  "n_unique_rollouts": 38345,
+  "normalization": {
+    "F": {
+      "mean": 19.478420757593444,
+      "std": 3.746986121287253
+    },
+    "T": {
+      "mean": 0.14974084375000002,
+      "std": 0.02920642791900588
+    },
+    "d_obs": {
+      "mean": 1.480767618276241,
+      "std": 1.5275507790735285
+    },
+    "asinh_d_obs": {
+      "mean": 5.242349671038866,
+      "std": 0.977179801314982
+    }
+  },
+  "normalization_source": "train.npz only",
+  "checks_passed": [
+    "check_schema",
+    "check_val_rows",
+    "check_ranges",
+    "check_cube_ids",
+    "check_measurement_ids",
+    "check_noise0",
+    "check_e1",
+    "check_e2",
+    "check_e3",
+    "check_e4",
+    "check_flags"
+  ],
+  "dataset_hash": "f722c512bae19c386748f9396fb85a5c968e06fa7ac77f728a36832833559918"
+}

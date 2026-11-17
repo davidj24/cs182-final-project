@@ -1,0 +1,40 @@
+9ea7ce6 Figures: draw every method in both E2 context styles (Bayes distinct-force was hidden)
+2f3d53d Update obsolete T00 Bayes-stub test (reviewed recommendation); record Bayes quadrature decision
+7447140 Integrate T03 Phase B Bayes (exp/ref e2b049c): reviewed, 0 CRITICAL/MAJOR; Bayes valid for declared ideal dynamics only
+99a7260 Control glue: fix figure axis labels (audit MAJOR-1/2), tighter loader verification, captions, training plot
+43d774b Control glue: pilot_make_figures (log-scale meeting figures from saved CSVs)
+e2b049c T03B: trim handoff to 40 lines
+5a8ad33 T03B: handoff and questions (Bayes valid for declared ideal dynamics only)
+9459d00 T03B: Bayes tests, hard-case subset, independent brute-force references
+3b3cc83 T03B: MuJoCo-mode Bayes with nested adaptive quadrature and priors
+1a0289e Control glue: pilot_load_run (checkpoint loader + provenance/val-loss verification)
+45759bf Record training step budget (150k steps)
+9379ebe Merge branch 'soomi-integration' into exp/ref
+ead9cd5 T03B: plan
+e6c51af Integrate T04 pilot datasets (exp/data f5e651b): reviewed, 0 CRITICAL/MAJOR; dataset pilot_v1 hash f722c512...
+f5e651b T04: runbook and handoff
+ebf0876 Record H2 decisions: R1 pass (by construction), r_model 9.5e-7, tau_abs 1e-4
+e8fe6ad Integrate T02 validation scripts + H2 packet (exp/sim 3c74ca1): reviewed, 0 CRITICAL/MAJOR
+f15567c T04: pilot dataset builders, checks, tests, scripts
+3c74ca1 T02: handoff and runbook
+6b3b296 T02: stratified sim validation script, H2 gate packet builder, tests
+342cabe Integrate T01 idealized 1D simulator (exp/sim f28ff1e): reviewed, 0 CRITICAL/MAJOR after 3 repair cycles (user-authorized)
+f28ff1e T01: handoff for idealized 1D simulator
+8c63200 T01: idealized 1D translational pusher (PILOT_SPEC A4), explicit Coulomb friction
+39abb09 Record user decision: idealized 1D translational simulator (Option 2), fallback to analytic data
+5c343a0 Merge branch 'soomi-integration' into exp/sim
+ea06492 T01: repair 2 evidence, translation-only scene cannot give N = mg (questions)
+5d7552d Record user decision: translation-only simulator scene (option A)
+8c535fd Merge branch 'soomi-integration' into exp/sim
+e31cae4 Integrate T05 model and training (exp/train 077405b): reviewed, 0 CRITICAL/MAJOR
+adf7910 Integrate T06 evaluation harness (exp/eval babf15b): reviewed, 0 CRITICAL/MAJOR after 1 repair cycle
+5e0ae3f T01: contact investigation (no flat setting found), flatness xfail tests, 4th replay case, docs
+077405b T05: GPT-2 model, tokens, row sampler, training loop, scripts, tests, runbook, handoff
+babf15b T06: repair cycle 1 (M1-M4, m1-m8)
+4adda4b T06: reuse-cache option, handoff
+4d1b8f5 T06: tests (hand fixture, pairing, clean target, bayes omission, runners), plot polish, runbook
+795b326 Record pilot physics-fit decisions (fit space, 3 N distinct-force tolerance)
+b9e6710 Integrate T03 pilot Phase A (exp/ref 49c15e1): oracle, analytic, physics fit; reviewed, 0 CRITICAL/MAJOR
+9876867 T01: fork pool for batch helper, handoff
+39b6cb4 T06: evaluation harness core (cases, predictors, cache, metrics, paired, runners, plots, cli)
+49c15e1 T03: handoff

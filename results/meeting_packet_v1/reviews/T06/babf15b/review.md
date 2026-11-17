@@ -1,0 +1,3 @@
+# Re-review T06 @ babf15b -- saved by control (reviewer-opus). CRITICAL 0, MAJOR 0, MINOR 7. 57 passed, 1 visible skip ("bayes blocked: ...").
+M1-M4 RESOLVED (verified by own E2 cases, three mutation runs on a scratch copy that each fail the stub-Bayes-as-model test, CLI run with partial Bayes stub: 0 bayes rows in 12 CSVs, code_hash changes with reference sources/DECISIONS). Changed assertion in test_cache_reads_earlier_version is legitimate (stronger).
+Minors: (1) cell B must require a single context force (len(set)==1); (2) code_hash omits types.py and env-predictor module; (3) B-vs-D pairing one-directional; (4) model_predict still receives true cube m/mu/cube_id; (5) hash test weak; (6) stale handoff lines; (7) npz-hash meta key guessed -> pin once T04 exists.

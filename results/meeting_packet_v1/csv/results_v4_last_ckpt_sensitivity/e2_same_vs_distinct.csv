@@ -1,0 +1,58 @@
+# standardized MSE (smse_trainvar) denominator: training-set Var(d) = 2.333411e+00 m^2 (meta.json normalization d_obs std squared); same for every method
+# MSE is against the clean MuJoCo query displacement only; mse_m2 in m^2
+# not_determined / blocked predictions are counted in n_not_determined / n_blocked and excluded from error means, never imputed
+# displacement tertile edges (m): <= 5.580621e-01, <= 1.098949e+00, above
+# bayes: available; nmse_bayes_c0 = MSE / D with D = 1.585720e+00 m^2 (training-prior Bayes at c=0, same item set); gap_to_bayes_m2 = MSE_method - MSE_bayes on shared valid items
+# experiment: E2 cells A-D (A,B same-force history; C,D distinct-force; A,C familiar query; B,D new query)
+# dataset: /home/exx/soomi/soomi_projects/cs282a_project/cs282a_data/datasets/pilot_v1 (meta version = pilot_v1; source git SHA = f15567cae923c0b9bcd6dabc7d0119e2017af70a)
+# Var(d) read from meta.json key normalization.d_obs.std
+# model: pilot_load_run:load
+# npz sha256 verified against meta.json: e1.npz, e2.npz, e3.npz, e4.npz
+# reference cache: code_hash = 2be68e0a01a0aef9 (reference/*.py, physics.py, eval/predictors.py, docs/DECISIONS.md)
+# reference cache hits: 8 (supplied by: /home/exx/soomi/soomi_projects/cs282a_project/cs282a_data/results/v3); misses: 0
+panel,style,method,x,value,se,n_ok,n
+familiar-force query,same-force,transformer,1,2.6782447978353315e-05,1.0125786788310947e-05,50,50
+familiar-force query,same-force,oracle,1,0.0,0.0,50,50
+familiar-force query,same-force,analytic_true,1,6.552326657375405e-14,7.027068725454017e-15,50,50
+familiar-force query,same-force,physics_fit,1,6.564974884858275e-14,2.622500796248101e-14,50,50
+familiar-force query,same-force,bayes_train,1,6.895191031097126e-14,2.8952224229932295e-14,50,50
+familiar-force query,same-force,transformer,2,7.648344400237018e-06,1.6773163503673565e-06,50,50
+familiar-force query,same-force,oracle,2,0.0,0.0,50,50
+familiar-force query,same-force,analytic_true,2,6.552326657375405e-14,7.027068725454017e-15,50,50
+familiar-force query,same-force,physics_fit,2,4.3700698495323686e-14,1.1092472841561943e-14,50,50
+familiar-force query,same-force,bayes_train,2,4.31799905790683e-14,1.0627354277513982e-14,50,50
+familiar-force query,same-force,transformer,4,5.709310154747254e-06,1.190891167593542e-06,50,50
+familiar-force query,same-force,oracle,4,0.0,0.0,50,50
+familiar-force query,same-force,analytic_true,4,6.552326657375405e-14,7.027068725454017e-15,50,50
+familiar-force query,same-force,physics_fit,4,1.9182580601143182e-14,3.5329599764412143e-15,50,50
+familiar-force query,same-force,bayes_train,4,1.9191639237750938e-14,3.5442367085020143e-15,50,50
+new-force query,same-force,transformer,2,4.430167403465243e-05,1.3830724143929111e-05,50,50
+new-force query,same-force,oracle,2,0.0,0.0,50,50
+new-force query,same-force,analytic_true,2,6.552326657375405e-14,7.027068725454017e-15,50,50
+new-force query,same-force,physics_fit,2,nan,nan,0,50
+new-force query,same-force,bayes_train,2,2.2485242713404397e-05,6.9027468986230695e-06,50,50
+new-force query,same-force,transformer,4,2.4804668945782836e-05,5.931906826361348e-06,50,50
+new-force query,same-force,oracle,4,0.0,0.0,50,50
+new-force query,same-force,analytic_true,4,6.552326657375405e-14,7.027068725454017e-15,50,50
+new-force query,same-force,physics_fit,4,nan,nan,0,50
+new-force query,same-force,bayes_train,4,1.349211545108907e-05,2.971804824135313e-06,50,50
+familiar-force query,distinct-force,transformer,2,1.4059900190540428e-05,3.996436663246059e-06,50,50
+familiar-force query,distinct-force,oracle,2,0.0,0.0,50,50
+familiar-force query,distinct-force,analytic_true,2,6.552326657375405e-14,7.027068725454017e-15,50,50
+familiar-force query,distinct-force,physics_fit,2,6.020742338862817e-14,1.2635964722541274e-14,50,50
+familiar-force query,distinct-force,bayes_train,2,6.275337014462131e-11,3.5339377744626637e-11,50,50
+familiar-force query,distinct-force,transformer,4,1.0975461344221932e-05,4.593703676709391e-06,50,50
+familiar-force query,distinct-force,oracle,4,0.0,0.0,50,50
+familiar-force query,distinct-force,analytic_true,4,6.552326657375405e-14,7.027068725454017e-15,50,50
+familiar-force query,distinct-force,physics_fit,4,5.669666431807205e-14,1.8531638667165488e-14,50,50
+familiar-force query,distinct-force,bayes_train,4,1.995299944688666e-14,3.266963793500893e-15,50,50
+new-force query,distinct-force,transformer,2,2.563327868256238e-05,8.865481407202746e-06,50,50
+new-force query,distinct-force,oracle,2,0.0,0.0,50,50
+new-force query,distinct-force,analytic_true,2,6.552326657375405e-14,7.027068725454017e-15,50,50
+new-force query,distinct-force,physics_fit,2,1.147551562066699e-13,3.995057942613375e-14,37,50
+new-force query,distinct-force,bayes_train,2,1.1963645587356222e-10,9.640411777147106e-11,50,50
+new-force query,distinct-force,transformer,4,1.1951793128671634e-05,2.4610670450683478e-06,50,50
+new-force query,distinct-force,oracle,4,0.0,0.0,50,50
+new-force query,distinct-force,analytic_true,4,6.552326657375405e-14,7.027068725454017e-15,50,50
+new-force query,distinct-force,physics_fit,4,2.2116552257439336e-14,4.20686354480457e-15,50,50
+new-force query,distinct-force,bayes_train,4,2.0408578552383064e-14,3.839377202832401e-15,50,50

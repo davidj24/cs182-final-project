@@ -1,0 +1,5 @@
+# Review T01 @ 9876867 -- saved by control (reviewer-opus). CRITICAL 1, MAJOR 2, MINOR 4.
+C1 CRITICAL: cube hops (ncon=0 in 420/877 steps for m=1,mu=.45,F=20,k=150; centre up to 4.25 mm; normal force spikes 15-40 N vs mg 9.81) and in ~8.5% of training-range pushes tumbles (m=0.5,mu=0.6,F=26,k=200: 179.9 deg, d=10.72 vs analytic 8.15 m). 1000 rollouts: 910 >1deg, 175 >10deg, 85 >45deg (almost all m<0.85, mu>0.4); 0 timeouts; rel err median 3.0e-4, p95 5.0e-2 (without tumbled: 2.7e-4 / 2.0e-3). Friction law holds (Ft/Fn=mu); fault is the normal contact. Rigid-body theory: pitch ~0, tipping needs mu>s/(2h)=1, impossible here. Not caused by solimp; default solimp also tumbles; impratio=1, pyramidal, noslip=10 do not fix.
+M1 test_max_rotation_over_trajectory asserts 1<rot<20 deg and calls it real; handoff sec.5 likewise. Wrong.
+M2 tests/replays never cover light+grippy corners (m=0.5, mu=0.6, F=26).
+m1 solimp accepted as numerical stiffness (sag 0.0100 vs 0.1078 mm; d changes ~1e-4 rel in non-tumbling cases); 1e-4 m settled tol is writer's choice. m2 t_stop includes dwell+ring-down. m3 fork vs CUDA. m4 settle speed 1e-3 looser than stop 1e-4.

@@ -1,0 +1,9 @@
+ok   no clock deadline (completion-based goal)
+ok   GPU-hours: finished 0.5705 + active/reserved 0.0000 + requested 0 = 0.5705 / 2.0
+ok   launches: 23 (+0) / 24
+ok   repairs GLUE: 1 / 3
+ok   repairs T01: 3 / 3
+ok   repairs T06: 1 / 3
+ok   new pilot outputs: 0.377 GB / 10 (baseline 41163 B)
+ok   free disk: 103 GB (min 30)
+info load avg 18.26 on 128 cores; simulation workers allowed: min(16, free cores). Dollar spend: not measurable, not enforced.

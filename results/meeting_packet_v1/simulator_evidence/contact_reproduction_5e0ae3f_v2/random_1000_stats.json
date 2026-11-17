@@ -1,0 +1,11 @@
+{
+ "n": 1000,
+ "rot_gt_1deg": 906,
+ "rot_gt_10deg": 188,
+ "rot_gt_45deg": 105,
+ "timeouts": 0,
+ "rel_err_median_abs": 0.0002968840028277303,
+ "rel_err_p95_abs": 0.09667392914054648,
+ "rel_err_max_abs": 0.7387974244610371,
+ "n_rel_gt_1pct": 79
+}

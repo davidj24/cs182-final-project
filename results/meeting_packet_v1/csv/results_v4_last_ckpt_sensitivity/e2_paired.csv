@@ -1,0 +1,33 @@
+# standardized MSE (smse_trainvar) denominator: training-set Var(d) = 2.333411e+00 m^2 (meta.json normalization d_obs std squared); same for every method
+# MSE is against the clean MuJoCo query displacement only; mse_m2 in m^2
+# not_determined / blocked predictions are counted in n_not_determined / n_blocked and excluded from error means, never imputed
+# displacement tertile edges (m): <= 5.580621e-01, <= 1.098949e+00, above
+# bayes: available; nmse_bayes_c0 = MSE / D with D = 1.585720e+00 m^2 (training-prior Bayes at c=0, same item set); gap_to_bayes_m2 = MSE_method - MSE_bayes on shared valid items
+# experiment: E2 cells A-D (A,B same-force history; C,D distinct-force; A,C familiar query; B,D new query)
+# dataset: /home/exx/soomi/soomi_projects/cs282a_project/cs282a_data/datasets/pilot_v1 (meta version = pilot_v1; source git SHA = f15567cae923c0b9bcd6dabc7d0119e2017af70a)
+# Var(d) read from meta.json key normalization.d_obs.std
+# model: pilot_load_run:load
+# npz sha256 verified against meta.json: e1.npz, e2.npz, e3.npz, e4.npz
+# reference cache: code_hash = 2be68e0a01a0aef9 (reference/*.py, physics.py, eval/predictors.py, docs/DECISIONS.md)
+# reference cache hits: 8 (supplied by: /home/exx/soomi/soomi_projects/cs282a_project/cs282a_data/results/v3); misses: 0
+comparison,group,c,method_a,method_b,n,n_pairs_total,mean_diff_sqerr_m2,se,ci_lo,ci_hi
+same-force minus distinct-force (familiar-force query),A vs C,2,transformer,transformer,50,50,-1.4960797261577592e-05,9.825281933923881e-06,-3.5091525088067455e-05,2.0274343588714844e-06
+same-force minus distinct-force (familiar-force query),A vs C,4,transformer,transformer,50,50,-1.228809712826628e-05,1.0466780840456483e-05,-3.6864711104072475e-05,3.647746853522847e-06
+same-force minus distinct-force (new-force query),B vs D,2,transformer,transformer,50,50,4.356104621034263e-05,2.466479035417364e-05,3.7867082339590943e-06,9.405728104895018e-05
+same-force minus distinct-force (new-force query),B vs D,4,transformer,transformer,50,50,2.999104673141035e-05,1.455558646473078e-05,4.69054993043114e-06,6.237548707252973e-05
+same-force minus distinct-force (familiar-force query),A vs C,2,oracle,oracle,50,50,0.0,0.0,0.0,0.0
+same-force minus distinct-force (familiar-force query),A vs C,4,oracle,oracle,50,50,0.0,0.0,0.0,0.0
+same-force minus distinct-force (new-force query),B vs D,2,oracle,oracle,50,50,0.0,0.0,0.0,0.0
+same-force minus distinct-force (new-force query),B vs D,4,oracle,oracle,50,50,0.0,0.0,0.0,0.0
+same-force minus distinct-force (familiar-force query),A vs C,2,analytic_true,analytic_true,50,50,0.0,0.0,0.0,0.0
+same-force minus distinct-force (familiar-force query),A vs C,4,analytic_true,analytic_true,50,50,0.0,0.0,0.0,0.0
+same-force minus distinct-force (new-force query),B vs D,2,analytic_true,analytic_true,50,50,0.0,0.0,0.0,0.0
+same-force minus distinct-force (new-force query),B vs D,4,analytic_true,analytic_true,50,50,0.0,0.0,0.0,0.0
+same-force minus distinct-force (familiar-force query),A vs C,2,physics_fit,physics_fit,50,50,-3.851697975627815e-14,2.101702797299092e-14,-8.199662531933347e-14,-1.9815538670215276e-15
+same-force minus distinct-force (familiar-force query),A vs C,4,physics_fit,physics_fit,50,50,-8.753578995469724e-14,4.3216032146756186e-14,-1.7845868178458892e-13,-1.6371028784725083e-14
+same-force minus distinct-force (new-force query),B vs D,2,physics_fit,physics_fit,0,50,nan,nan,nan,nan
+same-force minus distinct-force (new-force query),B vs D,4,physics_fit,physics_fit,0,50,nan,nan,nan,nan
+same-force minus distinct-force (familiar-force query),A vs C,2,bayes_train,bayes_train,50,50,-1.4632867151347173e-10,8.246320891121377e-11,-3.27441512032427e-10,-2.9497788805557553e-11
+same-force minus distinct-force (familiar-force query),A vs C,4,bayes_train,bayes_train,50,50,-1.7765665782926492e-15,4.856794258871396e-15,-1.1021019058885412e-14,7.599392539456425e-15
+same-force minus distinct-force (new-force query),B vs D,2,bayes_train,bayes_train,50,50,5.2467042127996144e-05,1.610685020524337e-05,2.491363288790845e-05,8.49103926122548e-05
+same-force minus distinct-force (new-force query),B vs D,4,bayes_train,bayes_train,50,50,3.1482655721952527e-05,6.934443203647269e-06,1.932124641792216e-05,4.593599315793954e-05

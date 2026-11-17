@@ -1,0 +1,12 @@
+{
+ "mse_transformer": 0.00013115093180201238,
+ "mse_bayes": 8.21060960748542e-05,
+ "smse_transformer": 5.6205662137968866e-05,
+ "smse_bayes": 3.518714988939222e-05,
+ "median_rel_transformer": 0.005702561945656567,
+ "median_rel_bayes": 0.0045818554533190135,
+ "transformer_beats_bayes_items": 31,
+ "error_corr": 0.7441926546883263,
+ "checkpoint_sha256": "6101448ec7b9430d9bc1145644307cf9ce565ad4ba2920f21821d14457edf230",
+ "ckpt_step": 118000
+}

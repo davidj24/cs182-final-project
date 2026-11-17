@@ -1,0 +1,62 @@
+# standardized MSE (smse_trainvar) denominator: training-set Var(d) = 2.333411e+00 m^2 (meta.json normalization d_obs std squared); same for every method
+# MSE is against the clean MuJoCo query displacement only; mse_m2 in m^2
+# not_determined / blocked predictions are counted in n_not_determined / n_blocked and excluded from error means, never imputed
+# displacement tertile edges (m): <= 5.899733e-01, <= 1.308387e+00, above
+# bayes: available; nmse_bayes_c0 = MSE / D with D = 1.526472e+00 m^2 (training-prior Bayes at c=0, same item set); gap_to_bayes_m2 = MSE_method - MSE_bayes on shared valid items
+# experiment: E1, context = first c of one ordered 10-push list (paired)
+# dataset: /home/exx/soomi/soomi_projects/cs282a_project/cs282a_data/datasets/pilot_v1 (meta version = pilot_v1; source git SHA = f15567cae923c0b9bcd6dabc7d0119e2017af70a)
+# Var(d) read from meta.json key normalization.d_obs.std
+# model: pilot_load_run:load
+# npz sha256 verified against meta.json: e1.npz, e2.npz, e3.npz, e4.npz
+# reference cache: code_hash = 2be68e0a01a0aef9 (reference/*.py, physics.py, eval/predictors.py, docs/DECISIONS.md)
+# reference cache hits: 0 (supplied by: none (all computed in this run)); misses: 4
+comparison,group,c,method_a,method_b,n,n_pairs_total,mean_diff_sqerr_m2,se,ci_lo,ci_hi
+c vs c=0,E1,1,transformer,transformer,100,100,-1.4982033865375672,0.37278027368350564,-2.3166576989442484,-0.9053386990377378
+c vs c=0,E1,2,transformer,transformer,100,100,-1.4982654498775678,0.3727865437482541,-2.316704677964405,-0.9054000473999693
+c vs c=0,E1,4,transformer,transformer,100,100,-1.498257338033766,0.3727834420686301,-2.3167049896904026,-0.9053878688202779
+c vs c=0,E1,8,transformer,transformer,100,100,-1.498277535411588,0.37278510897547085,-2.3167322273065976,-0.9054005112493523
+c vs c=0,E1,10,transformer,transformer,100,100,-1.4982674955572204,0.37277453900473884,-2.3167010942738275,-0.9053993246396599
+c vs c=0,E1,1,oracle,oracle,100,100,0.0,0.0,0.0,0.0
+c vs c=0,E1,2,oracle,oracle,100,100,0.0,0.0,0.0,0.0
+c vs c=0,E1,4,oracle,oracle,100,100,0.0,0.0,0.0,0.0
+c vs c=0,E1,8,oracle,oracle,100,100,0.0,0.0,0.0,0.0
+c vs c=0,E1,10,oracle,oracle,100,100,0.0,0.0,0.0,0.0
+c vs c=0,E1,1,analytic_true,analytic_true,100,100,0.0,0.0,0.0,0.0
+c vs c=0,E1,2,analytic_true,analytic_true,100,100,0.0,0.0,0.0,0.0
+c vs c=0,E1,4,analytic_true,analytic_true,100,100,0.0,0.0,0.0,0.0
+c vs c=0,E1,8,analytic_true,analytic_true,100,100,0.0,0.0,0.0,0.0
+c vs c=0,E1,10,analytic_true,analytic_true,100,100,0.0,0.0,0.0,0.0
+c vs c=0,E1,1,physics_fit,physics_fit,0,100,nan,nan,nan,nan
+c vs c=0,E1,2,physics_fit,physics_fit,0,100,nan,nan,nan,nan
+c vs c=0,E1,4,physics_fit,physics_fit,0,100,nan,nan,nan,nan
+c vs c=0,E1,8,physics_fit,physics_fit,0,100,nan,nan,nan,nan
+c vs c=0,E1,10,physics_fit,physics_fit,0,100,nan,nan,nan,nan
+c vs c=0,E1,1,bayes_train,bayes_train,100,100,-1.5263896057726587,0.3750900057857419,-2.336413962353388,-0.9216108292148089
+c vs c=0,E1,2,bayes_train,bayes_train,100,100,-1.5264709994253765,0.3750932563808985,-2.336522045943854,-0.9216731844073006
+c vs c=0,E1,4,bayes_train,bayes_train,100,100,-1.526471711617591,0.375093249608958,-2.3365220664258515,-0.9216752218010489
+c vs c=0,E1,8,bayes_train,bayes_train,100,100,-1.526471711647841,0.375093249609335,-2.336522066435407,-0.9216752218777519
+c vs c=0,E1,10,bayes_train,bayes_train,100,100,-1.5264717116612567,0.3750932496109779,-2.3365220664488233,-0.9216752218912555
+model vs method,E1,0,transformer,oracle,100,100,1.498334537469369,0.372788010252015,0.9054435906722899,2.3167900296639816
+model vs method,E1,1,transformer,oracle,100,100,0.00013115093180201238,3.0683134171676594e-05,7.804233976586109e-05,0.000196032767902629
+model vs method,E1,2,transformer,oracle,100,100,6.908759180075641e-05,1.3871188146442097e-05,4.493037890765208e-05,9.865553989739179e-05
+model vs method,E1,4,transformer,oracle,100,100,7.719943560254248e-05,1.4879314544218926e-05,4.997571951902872e-05,0.00010808433272395786
+model vs method,E1,8,transformer,oracle,100,100,5.70020577805728e-05,1.4316672783769693e-05,3.340755277282959e-05,8.858467210435915e-05
+model vs method,E1,10,transformer,oracle,100,100,6.704191214853784e-05,1.949882252889579e-05,3.455878297197663e-05,0.00010988715878153442
+model vs method,E1,0,transformer,analytic_true,100,100,1.4983345374692012,0.37278801025201524,0.9054435906721282,2.31679002966382
+model vs method,E1,1,transformer,analytic_true,100,100,0.00013115093163463813,3.06831341717837e-05,7.804233959423837e-05,0.00019603276772171032
+model vs method,E1,2,transformer,analytic_true,100,100,6.908759163338222e-05,1.3871188144404e-05,4.4930378719785626e-05,9.865553973411044e-05
+model vs method,E1,4,transformer,analytic_true,100,100,7.719943543516826e-05,1.4879314544283355e-05,4.9975719355910954e-05,0.00010808433255622575
+model vs method,E1,8,transformer,analytic_true,100,100,5.700205761319859e-05,1.4316672782847269e-05,3.340755259882818e-05,8.858467192972736e-05
+model vs method,E1,10,transformer,analytic_true,100,100,6.70419119811636e-05,1.9498822529438947e-05,3.4558782809131065e-05,0.00010988715861740369
+model vs method,E1,0,transformer,physics_fit,0,100,nan,nan,nan,nan
+model vs method,E1,1,transformer,physics_fit,0,100,nan,nan,nan,nan
+model vs method,E1,2,transformer,physics_fit,56,100,5.211282007945435e-05,1.448057802172679e-05,2.7341265037520943e-05,8.349464982232271e-05
+model vs method,E1,4,transformer,physics_fit,99,100,7.775940059453064e-05,1.501972988295677e-05,5.089276690033794e-05,0.0001091099368987773
+model vs method,E1,8,transformer,physics_fit,100,100,5.700205771331194e-05,1.4316672784078619e-05,3.3407552691031654e-05,8.85846720333143e-05
+model vs method,E1,10,transformer,physics_fit,100,100,6.704191208669858e-05,1.9498822529211607e-05,3.455878291133171e-05,0.00010988715872437198
+model vs method,E1,0,transformer,bayes_train,100,100,-0.0281371741981175,0.04679100417231659,-0.1265574682410639,0.05880669385329901
+model vs method,E1,1,transformer,bayes_train,100,100,4.904503697408929e-05,2.3598408924516776e-05,8.271805130142624e-06,0.00010041187593376207
+model vs method,E1,2,transformer,bayes_train,100,100,6.83753496909722e-05,1.3617981749526072e-05,4.4571966503282074e-05,9.693239803392518e-05
+model vs method,E1,4,transformer,bayes_train,100,100,7.719938570736644e-05,1.4879311899467463e-05,4.997564732812214e-05,0.00010808430640761595
+model vs method,E1,8,transformer,bayes_train,100,100,5.700203813585134e-05,1.431667327214095e-05,3.340753305737511e-05,8.858467197527011e-05
+model vs method,E1,10,transformer,bayes_train,100,100,6.704190591874431e-05,1.9498822679681996e-05,3.4558776642066776e-05,0.00010988715859141086

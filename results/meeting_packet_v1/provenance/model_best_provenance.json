@@ -1,0 +1,16 @@
+{
+  "run_dir": "/home/exx/soomi/soomi_projects/cs282a_project/cs282a_data/runs/pilot_v1_n0_s0",
+  "ckpt": "best.pt",
+  "ckpt_sha256": "6101448ec7b9430d9bc1145644307cf9ce565ad4ba2920f21821d14457edf230",
+  "step": 118000,
+  "source_git": {
+    "sha": "e6c51afba43894d75c544243be6bcddc6acb27b1",
+    "dirty": false
+  },
+  "dataset": "/home/exx/soomi/soomi_projects/cs282a_project/cs282a_data/datasets/pilot_v1",
+  "dataset_version": "pilot_v1",
+  "config_sha256": "a872534830616b822746a3995a2bd943bdcd7d1a78a8bf82b6d1d98ab3553fc6",
+  "steps_planned": 150000,
+  "seed": 0,
+  "noise": 0.0
+}
