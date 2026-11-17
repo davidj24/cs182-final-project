@@ -1,4 +1,9 @@
 # T01: MuJoCo scene and rollout
+
+> PILOT OVERRIDE (docs/PILOT_SPEC.md wins over this brief on scope and counts): simulator mechanics checks in PILOT_SPEC §G1 are mandatory; save frames/replay for light-slippery, middle, heavy-grippy; --workers <= 16.
+> Bayes is optional; never make your deliverable depend on it. Read docs/PILOT_SPEC.md first.
+> A plan (docs/plans/Txx.md, no code) is owned by this task if control asks for one.
+
 Worktree: sim | Writer: Claude Sonnet (writer-sonnet) | Reviewer: fresh Claude Opus (reviewer-opus)
 Reads: PROTOCOL §3-4, INTERFACES | Gate: H1
 Owns: src/cs182_icl/sim/, assets/, tests/sim/, scripts/sim_view.py,

@@ -1,4 +1,9 @@
 # T03: Reference estimators
+
+> PILOT OVERRIDE (docs/PILOT_SPEC.md wins over this brief on scope and counts): oracle, analytic, physics fit are required; Bayes only after R1 passes, with discrepancy model from PREAPPROVAL R2; if R1 fails deliver nothing Bayes-related except a note "blocked". Analytic-exact branches stay analytic-data only.
+> Bayes is optional; never make your deliverable depend on it. Read docs/PILOT_SPEC.md first.
+> A plan (docs/plans/Txx.md, no code) is owned by this task if control asks for one.
+
 Worktree: ref | Writer: Claude Opus, visible session, plan first | Reviewer: fresh Claude Opus + human hand check at H3
 Reads: PROTOCOL §2, §5, §8 | Gate: H3
 Owns: src/cs182_icl/reference/, tests/reference/, docs/handoffs/T03.md,

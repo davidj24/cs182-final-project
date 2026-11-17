@@ -1,4 +1,9 @@
 # T05: Model and training (adapt Garg et al.)
+
+> PILOT OVERRIDE (docs/PILOT_SPEC.md wins over this brief on scope and counts): one model: noise 0, seed 0; pre-training checks (shape, causal, normalization, leakage, fixed-set overfit) are mandatory; step budget chosen from a benchmark for ~30-45 min; warmup ~5% (cap 2,000); lr 1e-4, wd 0.01, batch 256. No seed/noise sweep, no 20k-step minimum.
+> Bayes is optional; never make your deliverable depend on it. Read docs/PILOT_SPEC.md first.
+> A plan (docs/plans/Txx.md, no code) is owned by this task if control asks for one.
+
 Worktree: train | Writer: Claude Sonnet (writer-sonnet; Opus if it struggles) | Reviewer: fresh Claude Opus
 Reads: PROTOCOL §5, §7 | Gate: H5
 Can start after H0 on synthetic rows from physics.py; swap in real data after H4.
