@@ -44,31 +44,43 @@ def new_run_dir(root: Path, run_id: str) -> tuple[Path, str]:
             cand = f"{run_id}_{i}"
 
 
-def batch_loss(model, norm, sampler_out) -> torch.Tensor:
+def batch_sq_err(model, norm, sampler_out) -> torch.Tensor:
+    """(B, 11) squared errors; column j is the prediction made with j context pushes."""
     F, T, d_obs, d_clean = sampler_out
     tok = encode(norm, F.float(), T.float(), d_obs.float())
     y = standardize_target(norm, d_clean).float()
-    return ((model.push_predictions(tok) - y) ** 2).mean()
+    return (model.push_predictions(tok) - y) ** 2
+
+
+def batch_loss(model, norm, sampler_out, first_pos: int = 0) -> torch.Tensor:
+    """Mean squared error over positions first_pos..10 (0 = all positions, the pilot's loss)."""
+    return batch_sq_err(model, norm, sampler_out)[:, first_pos:].mean()
 
 
 @torch.no_grad()
-def eval_val(model, norm, val_sampler: RowSampler, row_cube, row_idx, bs: int = 500) -> float:
+def eval_val(model, norm, val_sampler: RowSampler, row_cube, row_idx, bs: int = 500,
+             per_position: bool = False):
     model.eval()
     tot, n = 0.0, 0
+    pos = 0.0
     dev = val_sampler.device
     rc = torch.as_tensor(row_cube, device=dev)
     ri = torch.as_tensor(row_idx, device=dev)
     for s in range(0, len(rc), bs):
-        loss = batch_loss(model, norm, val_sampler.gather(rc[s : s + bs], ri[s : s + bs]))
-        tot += loss.item() * len(rc[s : s + bs])
+        se = batch_sq_err(model, norm, val_sampler.gather(rc[s : s + bs], ri[s : s + bs]))
+        tot += se.mean().item() * len(rc[s : s + bs])
+        pos = pos + se.double().sum(dim=0)
         n += len(rc[s : s + bs])
     model.train()
+    if per_position:
+        return tot / n, (pos / n).tolist()
     return tot / n
 
 
 def train(model, norm, train_s: RowSampler, val_s: RowSampler | None, val_rows, *, steps, lr=1e-4,
           wd=0.01, batch=256, warmup=None, eval_every=250, log_every=50, max_seconds=None,
-          run_dir: Path | None = None, config: dict | None = None, seed_torch: int = 0):
+          run_dir: Path | None = None, config: dict | None = None, seed_torch: int = 0,
+          loss_first_pos: int = 0):
     """Returns the list of metric records. Writes metrics.jsonl / best.pt / last.pt if run_dir."""
     dev = train_s.device
     warmup = warmup_steps(steps) if warmup is None else warmup
@@ -98,7 +110,7 @@ def train(model, norm, train_s: RowSampler, val_s: RowSampler | None, val_rows, 
             g["lr"] = lr_at(step, steps, warmup, lr)
         if use_cuda and win_n == 0:
             ev_s.record()
-        loss = batch_loss(model, norm, train_s.sample(batch))
+        loss = batch_loss(model, norm, train_s.sample(batch), loss_first_pos)
         opt.zero_grad(set_to_none=True)
         loss.backward()
         gn = torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
@@ -120,8 +132,9 @@ def train(model, norm, train_s: RowSampler, val_s: RowSampler | None, val_rows, 
             win_loss, win_n, win_t, win_tok = 0.0, 0, now, 0
         stop = max_seconds is not None and time.time() - t0 > max_seconds
         if val_s is not None and (last_step % eval_every == 0 or last_step == steps or stop):
-            v = eval_val(model, norm, val_s, *val_rows)
-            emit({"type": "val", "step": last_step, "val_loss": v, "wall_s": time.time() - t0})
+            v, vp = eval_val(model, norm, val_s, *val_rows, per_position=True)
+            emit({"type": "val", "step": last_step, "val_loss": v, "val_loss_ctx": sum(vp[1:]) / len(vp[1:]),
+                  "val_loss_per_pos": vp, "wall_s": time.time() - t0})
             if v < best:
                 best = v
                 ckpt("best.pt", last_step)

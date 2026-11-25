@@ -32,6 +32,8 @@ def main():
     ap.add_argument("--lr", type=float, default=1e-4)
     ap.add_argument("--wd", type=float, default=0.01)
     ap.add_argument("--noise", type=float, default=0.0, help="pilot: only 0 is supported")
+    ap.add_argument("--loss-first-pos", type=int, default=0,
+                    help="first position in the training loss: 0 = pilot; 1 = drop the no-context position")
     ap.add_argument("--eval-every", type=int, default=250)
     ap.add_argument("--run-id", default=None)
     ap.add_argument("--runs-root", default=None)
@@ -53,7 +55,7 @@ def main():
               "dataset_files_sha256": ds["files"], "dataset_meta": ds["meta"].get("version"),
               "steps": args.steps, "seed": args.seed, "noise": args.noise, "batch": args.batch,
               "lr": args.lr, "weight_decay": args.wd, "warmup_steps": wu, "schedule": "linear warmup + cosine to 0",
-              "eval_every": args.eval_every, "max_seconds": args.max_seconds, "model": model.cfg.to_dict(),
+              "loss_first_pos": args.loss_first_pos, "eval_every": args.eval_every, "max_seconds": args.max_seconds, "model": model.cfg.to_dict(),
               "params": n_params, "source_git": git, "argv": sys.argv,
               "cmd_config_sha256": None}
     config["cmd_config_sha256"] = hashlib.sha256(json.dumps(
@@ -71,7 +73,7 @@ def main():
     val_s = RowSampler(ds["val"], dev, seed=0)
     recs = train(model, ds["norm"], train_s, val_s, ds["val_rows"], steps=args.steps, lr=args.lr, wd=args.wd,
                  batch=args.batch, warmup=wu, eval_every=args.eval_every, max_seconds=args.max_seconds,
-                 run_dir=run_dir, config=config)
+                 run_dir=run_dir, config=config, loss_first_pos=args.loss_first_pos)
     print(json.dumps(recs[-1]))
 
 
