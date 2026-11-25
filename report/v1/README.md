@@ -9,6 +9,12 @@ python scripts/make_report_figures.py
 
 This reads the committed result tables in `results/pilot_v1/csv/` and writes `report/v1/figures/`.
 
+Tables and quoted numbers (standard library only):
+
+```bash
+python scripts/make_report_tables.py
+```
+
 | In the report | Source file under `results/pilot_v1/csv/` |
 |---|---|
 | E1 figure, E1 tables | `results_v3_best_ckpt/e1_error_vs_context.csv`, `e1_metrics.csv`, `e1_paired.csv` |

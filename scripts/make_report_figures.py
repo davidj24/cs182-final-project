@@ -10,7 +10,6 @@ column: one standard error over test cubes for a single trained model (not over 
 from __future__ import annotations
 
 import csv
-import shutil
 from pathlib import Path
 
 import matplotlib
@@ -88,7 +87,7 @@ def fig_e1():
 
 def fig_e2():
     rows = read(RES / "e2_same_vs_distinct.csv")
-    fig, ax = plt.subplots(1, 2, figsize=(7.0, 2.7), sharey=True)
+    fig, ax = plt.subplots(1, 2, figsize=(7.0, 3.0), sharey=True)
     for a, panel in zip(ax, ["familiar-force query", "new-force query"]):
         for style, ls in (("same-force", "-"), ("distinct-force", "--")):
             for m in STYLE:
@@ -100,8 +99,15 @@ def fig_e2():
         a.set_xticks([1, 2, 4])
         a.grid(alpha=0.25)
     ax[0].set_ylabel("standardized MSE (log)")
-    ax[1].legend(fontsize=5.5, ncol=2, loc="center left")
-    save(fig, "fig_e2.pdf")
+    handles, labels = ax[1].get_legend_handles_labels()
+    for h, lab in zip(*ax[0].get_legend_handles_labels()):
+        if lab not in labels:
+            handles.append(h)
+            labels.append(lab)
+    fig.tight_layout(rect=(0, 0.17, 1, 1))
+    fig.legend(handles, labels, loc="lower center", ncol=3, fontsize=6.5)
+    fig.savefig(OUT / "fig_e2.pdf")
+    plt.close(fig)
 
 
 def fig_e3_e4():
@@ -153,7 +159,9 @@ def main():
     fig_e3_e4()
     fig_per_position()
     # The training curve was plotted on the training machine from its metrics log, which is not committed.
-    shutil.copyfile(PILOT / "figures" / "F05_training_curves.png", OUT / "fig_training.png")
+    # Only the long internal footnote under the axes is cropped off; the report caption replaces it.
+    image = plt.imread(PILOT / "figures" / "F05_training_curves.png")
+    plt.imsave(OUT / "fig_training.png", image[: int(0.915 * image.shape[0])])
     print("wrote", ", ".join(sorted(p.name for p in OUT.iterdir())))
 
 
