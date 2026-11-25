@@ -1,5 +1,8 @@
 # Report V1: reproducing the figures and tables
 
+On Windows, some archived evidence files have long paths. If checkout fails with "Filename too long", clone with
+`git clone -c core.longpaths=true -b v1-report https://github.com/davidj24/cs182-final-project.git`.
+
 ## Figures (about a minute, CPU only, no model or dataset needed)
 
 ```bash
