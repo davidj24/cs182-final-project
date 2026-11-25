@@ -166,6 +166,7 @@ def fig_training():
                label="validation")
         a.set_yscale("log")
         a.set_xlabel("training step")
+        a.set_xticks(range(0, limit + 1, limit // 3))
         a.set_title(title, fontsize=8)
         a.grid(alpha=0.25)
     ax[0].axvline(best_step, color="gray", ls="--", lw=0.8, label=f"selected: step {best_step:,} ({best_loss:.4f})")
