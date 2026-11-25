@@ -26,7 +26,7 @@ python scripts/make_report_tables.py
 | E4 figure and table | `results_v3_best_ckpt/e4_heavy_ood.csv`, `supp_broad_prior_bayes/bayes_prior_comparison.csv` |
 | Per-position validation figure | `per_position_val_loss.csv` |
 | One-push audit numbers | `c1_audit_summary.json`; counterfactual checks: `results/meeting_packet_v1/GUIDE_READ_FIRST.md` section 8.2 |
-| Training-curve figure | `results/pilot_v1/figures/F05_training_curves.png`, saved by the pilot run. Its raw `metrics.jsonl` is **not** committed yet. |
+| Training-curve figure | `results/pilot_v1/logs/pilot_v1_n0_s0_metrics.jsonl` (the pilot run's log) |
 | Simulator and contact-scene numbers | `results/meeting_packet_v1/` (`GUIDE_READ_FIRST.md`, `simulator_evidence/`) |
 
 ## Full pipeline (data, training, evaluation)
@@ -46,6 +46,12 @@ CS282A_RUN_DIR=$CS282A_DATA/runs/pilot_v1_n0_s0 CS282A_CKPT=best.pt \
 
 A retrained model is not expected to match the pilot's checkpoint bit for bit (GPU arithmetic is not
 deterministic across hardware). The pilot's trained checkpoints are not yet released.
+
+To check that a rerun evaluation matches the committed tables:
+
+```bash
+python scripts/compare_results.py results/pilot_v1/csv/results_v3_best_ckpt <your results folder>
+```
 
 ## Compiling the report
 

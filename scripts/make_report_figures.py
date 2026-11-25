@@ -2,14 +2,15 @@
 
     uv run python scripts/make_report_figures.py            # or: python scripts/make_report_figures.py
 
-Reads only results/pilot_v1/ (CSVs written by the pilot evaluation, plus the pilot's saved training
-plot) and writes report/v1/figures/. No model, GPU or dataset is needed. Error bars are the `se`
+Reads only results/pilot_v1/ (CSVs written by the pilot evaluation and the pilot's training log)
+and writes report/v1/figures/. No model, GPU or dataset is needed. Error bars are the `se`
 column: one standard error over test cubes for a single trained model (not over training seeds).
 """
 
 from __future__ import annotations
 
 import csv
+import json
 from pathlib import Path
 
 import matplotlib
@@ -152,6 +153,27 @@ def fig_per_position():
     save(fig, "fig_per_position.pdf")
 
 
+def fig_training():
+    with open(PILOT / "logs" / "pilot_v1_n0_s0_metrics.jsonl", encoding="utf-8") as f:
+        records = [json.loads(line) for line in f]
+    train = [(r["step"], r["train_loss"]) for r in records if r["type"] == "train"]
+    val = [(r["step"], r["val_loss"]) for r in records if r["type"] == "val"]
+    best_loss, best_step = min((loss, step) for step, loss in val)
+    fig, ax = plt.subplots(1, 2, figsize=(7.0, 2.4))
+    for a, limit, title in ((ax[0], 150_000, "full run"), (ax[1], 6_000, "first 6,000 steps")):
+        a.plot(*zip(*[p for p in train if p[0] <= limit]), color="#c0392b", lw=0.8, label="train (50-step mean)")
+        a.plot(*zip(*[p for p in val if p[0] <= limit]), color="#1f77b4", marker="o", ms=2, lw=0.9,
+               label="validation")
+        a.set_yscale("log")
+        a.set_xlabel("training step")
+        a.set_title(title, fontsize=8)
+        a.grid(alpha=0.25)
+    ax[0].axvline(best_step, color="gray", ls="--", lw=0.8, label=f"selected: step {best_step:,} ({best_loss:.4f})")
+    ax[0].set_ylabel("standardized MSE, 11 positions (log)")
+    ax[0].legend(fontsize=6)
+    save(fig, "fig_training.pdf")
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     fig_e1()
@@ -159,9 +181,7 @@ def main():
     fig_e3_e4()
     fig_per_position()
     # The training curve was plotted on the training machine from its metrics log, which is not committed.
-    # Only the long internal footnote under the axes is cropped off; the report caption replaces it.
-    image = plt.imread(PILOT / "figures" / "F05_training_curves.png")
-    plt.imsave(OUT / "fig_training.png", image[: int(0.915 * image.shape[0])])
+    fig_training()
     print("wrote", ", ".join(sorted(p.name for p in OUT.iterdir())))
 
 
