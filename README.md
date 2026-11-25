@@ -2,8 +2,21 @@
 
 Final project for CS 182 / 282A (Designing, Visualizing and Understanding Deep Neural Networks), UC Berkeley, Fall 2026. Topic: **in-context learning (ICL)**.
 
-**Team:** TODO (4 names)
-**Research question:** TODO (see [CLAUDE.md](CLAUDE.md))
+**Team:** Soomi Lee, Catherine Zhuang, Kenneth Llontop, David Jo
+
+**Research question:** how do the number and type of pushes in a transformer's context determine how accurately it predicts a new push on an unseen block, compared with an estimator that uses the same context optimally?
+
+## Reviewers: start here
+
+[report/v1/README.md](report/v1/README.md) explains how to regenerate the report's figures and tables (CPU only, about a minute):
+
+```bash
+python -m pip install matplotlib
+python scripts/make_report_figures.py
+python scripts/make_report_tables.py
+```
+
+The sections below describe the full development environment.
 
 ## Setup
 
