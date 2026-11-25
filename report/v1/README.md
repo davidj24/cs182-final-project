@@ -10,7 +10,8 @@ python -m pip install matplotlib      # or use the project environment: uv run .
 python scripts/make_report_figures.py
 ```
 
-This reads the committed result tables in `results/pilot_v1/csv/` and writes `report/v1/figures/`.
+This reads the committed result tables and training logs in `results/pilot_v1/` and `results/ablation/` and writes
+`report/v1/figures/`.
 
 Tables and quoted numbers (standard library only):
 
@@ -27,6 +28,7 @@ python scripts/make_report_tables.py
 | Per-position validation figure | `per_position_val_loss.csv` |
 | One-push audit numbers | `c1_audit_summary.json`; counterfactual checks: `results/meeting_packet_v1/GUIDE_READ_FIRST.md` section 8.2 |
 | Training-curve figure | `results/pilot_v1/logs/pilot_v1_n0_s0_metrics.jsonl` (the pilot run's log) |
+| Ablation figure and table | `results/ablation/` (`val_per_position.csv`, `paired_a_vs_b.csv`, `ablation_*/`) |
 | Simulator and contact-scene numbers | `results/meeting_packet_v1/` (`GUIDE_READ_FIRST.md`, `simulator_evidence/`) |
 
 ## Full pipeline (data, training, evaluation)
@@ -52,6 +54,31 @@ To check that a rerun evaluation matches the committed tables:
 ```bash
 python scripts/compare_results.py results/pilot_v1/csv/results_v3_best_ckpt <your results folder>
 ```
+
+## Loss-weighting ablation (two 20,000-step runs)
+
+The comparison was fixed in `ABLATION_PLAN.md` before training. Each run took about 86 minutes on a GTX 1650
+(4 GB). After generating the dataset as above, run the following twice, with `NAME`/`FIRST` set to
+`ablation_A_all_positions`/`0` and then `ablation_B_context_only`/`1`:
+
+```bash
+python scripts/train.py --dataset $CS282A_DATA/datasets/pilot_v1 --steps 20000 --seed 0 --noise 0 \
+    --eval-every 500 --loss-first-pos $FIRST --run-id $NAME
+CS282A_RUN_DIR=$CS282A_DATA/runs/$NAME CS282A_CKPT=last.pt python scripts/eval_run.py \
+    --dataset-dir $CS282A_DATA/datasets/pilot_v1 --model-loader pilot_load_run:load \
+    --out-dir $CS282A_DATA/results/$NAME
+```
+
+Then the paired comparison on identical test cases (CPU is enough):
+
+```bash
+python scripts/compare_ablation.py --dataset-dir $CS282A_DATA/datasets/pilot_v1 \
+    --run-a $CS282A_DATA/runs/ablation_A_all_positions --run-b $CS282A_DATA/runs/ablation_B_context_only \
+    --out-dir <new folder>
+```
+
+The logs, configurations and result tables from the reported runs are in `results/ablation/`. Their checkpoints
+are not yet released.
 
 ## Compiling the report
 

@@ -95,6 +95,33 @@ def main():
     title("One-push audit")
     print(json.dumps(json.loads((CSV / "c1_audit_summary.json").read_text()), indent=2))
 
+    title("Ablation: final checkpoints, A (positions 0-10) vs B (positions 1-10)")
+    ab = Path(__file__).resolve().parents[1] / "results" / "ablation"
+    for r in read(ab / "paired_a_vs_b.csv"):
+        print(f"{r['experiment']} {r['group']:<4} c={r['c']:<2} smse A={float(r['smse_a']):.3g} B={float(r['smse_b']):.3g} "
+              f"A-B={float(r['mean_diff_a_minus_b_m2']):.3g} [{float(r['ci_lo']):.3g}, {float(r['ci_hi']):.3g}] m^2")
+    val = read(ab / "val_per_position.csv")
+    for run in "AB":
+        mine = [r for r in val if r["run"] == run]
+        print(f"{run}: step {mine[-1]['step']} val positions 1-10 mean {float(mine[-1]['val_loss_positions_1_to_10']):.3g}")
+        picked = min(mine, key=lambda r: float(r["val_loss_all_positions"]))
+        print(f"{run}: all-position loss selects step {picked['step']} (positions 1-10: "
+              f"{float(picked['val_loss_positions_1_to_10']):.3g})")
+    a_late, b_late = ([float(r["val_loss_positions_1_to_10"]) for r in val if r["run"] == k and int(r["step"]) >= 10500]
+                      for k in "AB")
+    print(f"B lower than A at {sum(b < a for a, b in zip(a_late, b_late))}/{len(a_late)} evaluations from step 10,500")
+    for folder, run in (("ablation_A_all_positions", "A"), ("ablation_B_context_only", "B")):
+        for r in read(ab / folder / "e1_metrics.csv"):
+            if r["method"] == "transformer":
+                print(f"{run} E1 c={r['c']:<2} median relative error {100 * float(r['median_rel_err']):.3g}%")
+        for r in read(ab / folder / "e2_paired.csv"):
+            if r["method_a"] == "transformer" and "new-force" in r["comparison"]:
+                print(f"{run} E2 B-D c={r['c']} {float(r['mean_diff_sqerr_m2']):.3g} "
+                      f"[{float(r['ci_lo']):.3g}, {float(r['ci_hi']):.3g}] m^2")
+        for r in read(ab / folder / "e3_prediction_change.csv"):
+            if r["method"] == "transformer":
+                print(f"{run} E3 k={r['k']} mean prediction change {1000 * float(r['mean_abs_change_m']):.2g} mm")
+
 
 if __name__ == "__main__":
     main()

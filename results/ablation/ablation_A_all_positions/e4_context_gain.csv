@@ -1,0 +1,35 @@
+# standardized MSE (smse_trainvar) denominator: training-set Var(d) = 2.333411e+00 m^2 (meta.json normalization d_obs std squared); same for every method
+# MSE is against the clean MuJoCo query displacement only; mse_m2 in m^2
+# not_determined / blocked predictions are counted in n_not_determined / n_blocked and excluded from error means, never imputed
+# displacement tertile edges (m): <= 5.899733e-01, <= 1.308387e+00, above
+# bayes: available; nmse_bayes_c0 = MSE / D with D = 1.526472e+00 m^2 (training-prior Bayes at c=0, same item set); gap_to_bayes_m2 = MSE_method - MSE_bayes on shared valid items
+# experiment: E4 preliminary heavy-OOD behavior (heavy cubes, no retraining; 50 cubes, one seed)
+# tertile edges come from the in-distribution item targets and are applied to both sets
+# NMSE denominator D is the in-distribution Bayes c=0 MSE, shared with the OOD set
+# dataset: /home/davidj24/cs182-data/datasets/pilot_v1 (meta version = pilot_v1; source git SHA = 9dc274d5638446aae803ee3257d0cc51e5ffd641)
+# Var(d) read from meta.json key normalization.d_obs.std
+# model: pilot_load_run:load
+# npz sha256 verified against meta.json: e1.npz, e2.npz, e3.npz, e4.npz
+# reference cache: code_hash = bd160a91378e37c7 (reference/*.py, physics.py, eval/predictors.py, docs/DECISIONS.md)
+# reference cache hits: 1 (supplied by: /home/davidj24/cs182-data/results/ablation_A_all_positions); misses: 18
+set,method,c,smse_c,smse_c0,ratio_c_over_c0
+in-distribution,transformer,2,4.9917048382125376e-05,0.6514821160391508,7.662075006081304e-05
+in-distribution,transformer,10,2.5557991719983897e-05,0.6514821160391508,3.923053463903219e-05
+in-distribution,oracle,2,0.0,0.0,nan
+in-distribution,oracle,10,0.0,0.0,nan
+in-distribution,analytic_true,2,7.172940832104486e-14,7.172940832104486e-14,1.0
+in-distribution,analytic_true,10,7.172940832104486e-14,7.172940832104486e-14,1.0
+in-distribution,physics_fit,2,7.076889089038241e-14,nan,nan
+in-distribution,physics_fit,10,2.650164740042296e-14,nan,nan
+in-distribution,bayes_train,2,3.052364084107264e-07,0.6541802800049439,4.6659371696196587e-07
+in-distribution,bayes_train,10,2.6698221926046762e-12,0.6541802800049439,4.0811719249386416e-12
+heavy OOD,transformer,2,4.7624099789447156e-05,0.9222447821220514,5.163932690393309e-05
+heavy OOD,transformer,10,3.122311716726641e-05,0.9222447821220514,3.385556391593039e-05
+heavy OOD,oracle,2,0.0,0.0,nan
+heavy OOD,oracle,10,0.0,0.0,nan
+heavy OOD,analytic_true,2,7.200816561330184e-14,7.200816561330184e-14,1.0
+heavy OOD,analytic_true,10,7.200816561330184e-14,7.200816561330184e-14,1.0
+heavy OOD,physics_fit,2,6.319060461154884e-14,nan,nan
+heavy OOD,physics_fit,10,3.297788327651671e-14,nan,nan
+heavy OOD,bayes_train,2,0.0005448795914314292,0.9021000501321206,0.0006040123724099413
+heavy OOD,bayes_train,10,0.0005378526186163748,0.9021000501321206,0.0005962228009383234

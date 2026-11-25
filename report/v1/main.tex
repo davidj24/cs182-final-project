@@ -22,7 +22,7 @@ CS 182/282A Final Project, Report V1 (draft for peer review)\\
 \maketitle
 
 \begin{abstract}
-We ask whether a transformer that predicts how far a pushed block slides uses the \emph{information} in its push history about the hidden mass $m$ and friction $\mu$, or merely benefits from a longer context. We train a 9.5M-parameter causal transformer from scratch on an idealized 1D Coulomb-friction simulator and compare it with a Bayes estimator that knows the physics and the training prior. In a one-seed, noise-free pilot, one context push lowers median relative error from 56.3\% to 0.57\% (Bayes: 0.46\%). From two pushes on, the transformer stays between 0.33\% and 0.44\%, while Bayes falls below $10^{-4}\%$. Pushes at different forces help Bayes by many orders of magnitude on a new-force query; the transformer shows a matching advantage at two context pushes, but at four the answer changes with the checkpoint, so we call it inconclusive. On heavier cubes, context still helps, but relative error is about seven times larger.
+We ask whether a transformer that predicts how far a pushed block slides uses the \emph{information} in its push history about the hidden mass $m$ and friction $\mu$, or merely benefits from a longer context. We train a 9.5M-parameter causal transformer from scratch on an idealized 1D Coulomb-friction simulator and compare it with a Bayes estimator that knows the physics and the training prior. In a one-seed, noise-free pilot, one context push lowers median relative error from 56.3\% to 0.57\% (Bayes: 0.46\%). From two pushes on, the transformer stays between 0.33\% and 0.44\%, while Bayes falls below $10^{-4}\%$. Pushes at different forces help Bayes by many orders of magnitude on a new-force query; the transformer shows a matching advantage at two context pushes, but at four the answer changes with the checkpoint, so we call it inconclusive. On heavier cubes, context still helps, but relative error is about seven times larger. In shorter one-seed runs, removing the no-context position from the training loss lowered contextual error but left the transformer far from Bayes.
 \end{abstract}
 
 \section{Introduction}
@@ -34,7 +34,7 @@ A falling error-versus-context curve does not show \emph{why} the model improves
 
 \textbf{Hypotheses} (from our proposal). \textbf{H1}: the transformer approaches the optimal estimator once the context size reaches the number of unknowns, $c=2$. \textbf{H2}: it needs pushes that differ in \emph{force}; pushes differing only in duration add no new information. \textbf{H3}: redundant pushes do not hurt, and under measurement noise repeated pushes help. \textbf{H4}: these patterns persist outside the training range.
 
-\textbf{What this draft contains.} A pilot with one trained model that tests H1, H2, the noise-free part of H3 and one direction of H4. H1 is not supported at the precision the reference reaches. H2 is partly supported by the reference but unresolved for the transformer. Multiple seeds and measurement noise are still in progress (Section~\ref{sec:progress}).
+\textbf{What this draft contains.} A pilot with one trained model that tests H1, H2, the noise-free part of H3 and one direction of H4, plus a shorter two-run ablation of the training loss. H1 is not supported at the precision the reference reaches. H2 is partly supported by the reference but unresolved for the transformer. Multiple seeds and measurement noise are still in progress (Section~\ref{sec:progress}).
 
 \textbf{Changes since the proposal.} (i) The planned free-cube MuJoCo~\cite{todorov2012} contact scene failed our validation and was replaced by an idealized 1D sliding block (Appendix~\ref{app:contact}). All claims are about those ideal dynamics, not realistic contact. (ii) The pilot uses 1,000 training cubes, not about 10,000. (iii) It has one training seed and no noise. (iv) We use our own compact PyTorch implementation of a GPT-2-style model rather than the code of Garg et al.
 
@@ -75,7 +75,7 @@ The data come from MuJoCo with one slide joint. At each 1 ms step, our code appl
 
 Cubes are sampled as $m\sim$ log-uniform$[0.5,1.5]$ kg and $\mu\sim$ uniform$[0.3,0.6]$. Pushes are sampled independently of the cube as $F\sim$ uniform$[13,26]$ N and $T=k\cdot 1$\,ms with $k$ uniform on $\{100,\dots,200\}$. The lowest force exceeds the largest friction force ($0.6\cdot1.5\cdot9.81=8.8$ N), so every in-range push moves the cube. The training set has 1,000 cubes with 32 pushes each. The validation set has 100 other cubes and 1,000 fixed 11-push sequences. Each experiment uses further, disjoint cubes: 100 (E1), 50 (E2), 50 (E3) and 50 heavy cubes (E4). All normalization constants come from the training split only. This pilot has no measurement noise.
 
-\subsection{Transformer}
+\subsection{Transformer}\label{sec:model}
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}[font=\scriptsize, tok/.style={draw, rounded corners=1pt, minimum width=1.25cm, minimum height=0.55cm, align=center}, push/.style={tok, fill=blue!12}, obs/.style={tok, fill=orange!18}]
@@ -94,7 +94,7 @@ Cubes are sampled as $m\sim$ log-uniform$[0.5,1.5]$ kg and $\mu\sim$ uniform$[0.
 \label{fig:tokens}
 \end{figure}
 
-Each token is a 5-vector: a push is $[\tilde F,\tilde T,0,0,0]$ and an outcome is $[0,0,\tilde d,\widetilde{\mathrm{asinh}}(d/0.01),1]$. A tilde means standardized with training mean and standard deviation, the second outcome feature standardizes $\mathrm{asinh}(d/0.01\,\mathrm{m})$ to compress large displacements, and the final 1 marks outcome tokens. A learned linear layer maps tokens to 256 dimensions and learned position embeddings are added. The network has 12 pre-layer-norm blocks with 8-head causal self-attention and a $4\times$ GELU feed-forward layer, a final layer norm and a linear output: 9,485,057 parameters, no dropout. This follows the GPT-2-family~\cite{radford2019} size used by Garg et al.\ (12 layers, 8 heads, width 256)~\cite{garg2022,vaswani2017}, written from scratch in PyTorch.
+Each token is a 5-vector: a push is $[\tilde F,\tilde T,0,0,0]$ and an outcome is $[0,0,\tilde d,\widetilde{\mathrm{asinh}}(d/0.01),1]$ (Figure~\ref{fig:tokens}). A tilde means standardized with training mean and standard deviation, the second outcome feature standardizes $\mathrm{asinh}(d/0.01\,\mathrm{m})$ to compress large displacements, and the final 1 marks outcome tokens. A learned linear layer maps tokens to 256 dimensions and learned position embeddings are added. The network has 12 pre-layer-norm blocks with 8-head causal self-attention and a $4\times$ GELU feed-forward layer, a final layer norm and a linear output: 9,485,057 parameters, no dropout. This follows the GPT-2-family~\cite{radford2019} size used by Garg et al.\ (12 layers, 8 heads, width 256)~\cite{garg2022,vaswani2017}, written from scratch in PyTorch.
 
 A training row is 11 distinct pushes from one cube in random order (22 tokens). With $y_{nj}$ the standardized clean displacement of push $j$ in row $n$, and $\hat y_{nj}=f_\theta(\text{tokens up to push token }j)$, we minimize over batches of $N=256$ rows
 \begin{equation}
@@ -145,22 +145,16 @@ Unless stated otherwise, numbers below come from the pilot run of Nov.\ 16 (seed
 \subsection{Training}
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{figures/fig_training.pdf}
+\includegraphics[width=0.93\linewidth]{figures/fig_training.pdf}
 \caption{Training loss (mean over 50-step windows) and validation loss (every 1,000 steps), standardized MSE over all 11 positions, logarithmic $y$-axis so that late changes stay visible. Left: full run; right: first 6,000 steps. One seed, so no error band. The plateau near $0.06$ is almost entirely the no-context position.}
 \label{fig:train}
 \end{figure}
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.62\linewidth]{figures/fig_per_position.pdf}
-\caption{Validation standardized MSE at each of the 11 prediction positions for the selected and final checkpoints, on 1,000 fixed validation sequences. Logarithmic axis: position 0 is four orders of magnitude above the rest.}
-\label{fig:perpos}
-\end{figure}
-Training and validation loss track each other (Figure~\ref{fig:train}), and training was stable. The curves hide an important fact (Figure~\ref{fig:perpos}). At position 0, with no context, no method can identify the cube, and its error (0.675) makes up 99.95\% of the average loss. At positions 1--10 the error is between $2.6\times10^{-5}$ and $6.6\times10^{-5}$. So selecting the checkpoint by average validation loss selects mostly on no-context error. The best checkpoint (loss 0.0614, step 118,000) and the final one (0.0619) differ little in aggregate but, as Section~\ref{sec:e2} shows, can differ on the contrast we care about.
+Training and validation loss track each other (Figure~\ref{fig:train}), and training was stable. The curves hide an important fact (Figure~\ref{fig:perpos}, in the appendix). At position 0, with no context, no method can identify the cube, and its error (0.675) makes up 99.95\% of the average loss. At positions 1--10 the error is between $2.6\times10^{-5}$ and $6.6\times10^{-5}$. So selecting the checkpoint by average validation loss selects mostly on no-context error. The best checkpoint (loss 0.0614, step 118,000) and the final one (0.0619) differ little in aggregate but, as Section~\ref{sec:e2} shows, can differ on the contrast we care about.
 
 \subsection{E1: context helps, then the transformer plateaus}
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{figures/fig_e1.pdf}
+\includegraphics[width=0.93\linewidth]{figures/fig_e1.pdf}
 \caption{E1 on 100 unseen cubes. Left: standardized MSE ($\pm1$ SE over cubes; lower bars are clipped where the SE is comparable to the mean). Right: median relative error. Logarithmic $y$-axes are needed because methods differ by up to eleven orders of magnitude. The physics fit is plotted only where determined (56/100 cubes at $c=2$, 99/100 at $c=4$, all at $c\ge8$), so its points are not over the same cubes as the others.}
 \label{fig:e1}
 \end{figure}
@@ -177,7 +171,7 @@ Bayes, training prior & 55.2 & 0.458 & $5.8\times10^{-5}$ & $2.8\times10^{-5}$ &
 \bottomrule
 \end{tabular}
 \end{table}
-At $c=0$ the transformer's MSE is statistically indistinguishable from Bayes' (paired difference $-0.028$ m$^2$, 95\% interval $[-0.127, 0.059]$): it has learned roughly the prior-average prediction. A single push lowers median error from 56.3\% to 0.57\% (Table~\ref{tab:e1}, Figure~\ref{fig:e1}), so the model clearly uses its context. From $c=2$ the transformer shows no clear further improvement (standardized MSE between $2.4$ and $3.3\times10^{-5}$), while Bayes improves from $3.1\times10^{-7}$ at $c=2$ to $2.1\times10^{-11}$ or below from $c=4$ on. A 0.43\% error is accurate in practical terms, but it is far from what the two observations permit: \textbf{H1 is not supported}, since the second observation does not bring the transformer close to the optimal estimator. We do not yet know what causes the plateau. Candidates are the loss weighting above, only 1,000 training cubes, optimization or numerical precision limits; none has been tested.
+At $c=0$ the transformer's MSE is statistically indistinguishable from Bayes' (paired difference $-0.028$ m$^2$, 95\% interval $[-0.127, 0.059]$): it has learned roughly the prior-average prediction. A single push lowers median error from 56.3\% to 0.57\% (Table~\ref{tab:e1}, Figure~\ref{fig:e1}), so the model clearly uses its context. From $c=2$ the transformer shows no clear further improvement (standardized MSE between $2.4$ and $3.3\times10^{-5}$), while Bayes improves from $3.1\times10^{-7}$ at $c=2$ to $2.1\times10^{-11}$ or below from $c=4$ on. A 0.43\% error is accurate in practical terms, but it is far from what the two observations permit: \textbf{H1 is not supported}, since the second observation does not bring the transformer close to the optimal estimator. We do not know the main cause of the plateau. A short ablation (Section~\ref{sec:ablation}) indicates that the loss weighting above contributes but does not close the gap; the number of training cubes (1,000), optimization and numerical precision remain untested.
 
 \subsection{Why one push already works}\label{sec:onepush}
 A 0.57\% error after one observation looks suspicious, because one equation cannot fix two unknowns. The explanation is the prior. One push restricts $(A,B)$ to a line, and the bounded ranges cut that line to a short segment along which predictions at other forces barely change. For example, cubes $(m,\mu)=(1.0, 0.450)$ and $(1.2, 0.3244)$ give the same 0.794 m for a 20 N, 150 ms push, yet their predictions at 24 N differ by only 0.75\%. Exact Bayes at $c=1$ reaches 0.458\% median error, so the transformer's MSE ($1.31\times10^{-4}$ m$^2$) is about 1.6 times that of the best achievable ($8.2\times10^{-5}$ m$^2$). We also audited the pipeline for leakage. Writing the true query outcome into the query's outcome slot changes the prediction by exactly zero; swapping in another cube's context raises median error to 71\%; and scaling the observed $d_1$ by 1.01 scales the prediction almost as exact Bayes does (elasticity 0.995 vs.\ 1.001). These checks found no leak. The practical consequence is that this prior makes one push very informative, which leaves little room for later pushes to matter at the transformer's accuracy.
@@ -185,7 +179,7 @@ A 0.57\% error after one observation looks suspicious, because one equation cann
 \subsection{E2: does force diversity matter?}\label{sec:e2}
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{figures/fig_e2.pdf}
+\includegraphics[width=0.93\linewidth]{figures/fig_e2.pdf}
 \caption{E2 on 50 cubes: standardized MSE ($\pm1$ SE over cubes, log $y$-axis). Solid lines: same-force contexts (cells A, B); dashed: distinct-force contexts (C, D). Left: familiar-force query; right: new-force query.}
 \label{fig:e2}
 \end{figure}
@@ -210,7 +204,7 @@ The scale matters for interpreting \textbf{H2}. The information effect, as measu
 \subsection{E3: duplicated observations (noise-free)}
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{figures/fig_e3_e4.pdf}
+\includegraphics[width=0.93\linewidth]{figures/fig_e3_e4.pdf}
 \caption{Left: E3, mean absolute change of the prediction relative to $k=0$ after appending $k$ exact copies, divided by the training standard deviation of $d$ ($\pm1$ SE over 50 cubes). Bayes and the physics fit change by exactly zero because they remove copies (not drawable on a log axis, so the axis is linear). Right: E4, standardized MSE in and out of the training mass range (log axis).}
 \label{fig:e3e4}
 \end{figure}
@@ -235,8 +229,41 @@ Heavy & 10 & 2.27 & 1.56 & $8\times10^{-5}$\\
 \end{table}
 On heavy cubes the transformer still gains from context (544\% to 2.3\%, Table~\ref{tab:e4}), but at $c=10$ its median relative error is about seven times its in-range value. Two readings need care. First, standardized MSE looks the same in and out of range (Figure~\ref{fig:e3e4}, right) only because heavy cubes slide shorter distances; relative error shows the degradation. Second, the transformer beats training-prior Bayes in MSE on heavy cubes, but that estimator cannot represent $m>1.5$ kg; in median relative error the transformer is slightly worse than it, and far worse than broad-prior Bayes. E2 and E3 were not repeated out of range, so \textbf{H4} is only partly tested.
 
+\subsection{Ablation: does the no-context position cause the plateau?}\label{sec:ablation}
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.93\linewidth]{figures/fig_ablation.pdf}
+\caption{Loss-weighting ablation, one seed per run. Left: validation standardized MSE averaged over positions 1--10, every 500 steps (log axis, since it falls by orders of magnitude). Right: the same by position for the final checkpoints (linear axis from zero). Same 1,000 validation sequences; no error bands, since there is one run each.}
+\label{fig:ablation}
+\end{figure}
+\begin{table}[t]
+\centering\small
+\caption{Ablation on E1 (same 100 cubes), final checkpoints. A $-$ B is the paired difference in squared error ($10^{-5}$ m$^2$; positive favors B) with a 95\% bootstrap interval over cubes, which does not include variation across seeds.}
+\label{tab:ablation}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llccccc}
+\toprule
+& Context size $c$ & 1 & 2 & 4 & 8 & 10\\
+\midrule
+Std.\ MSE ($10^{-5}$) & A & 5.37 & 4.99 & 3.28 & 2.73 & 2.56\\
+& B & 4.10 & 2.39 & 2.18 & 2.23 & 1.97\\
+Median rel.\ error (\%) & A & 0.62 & 0.55 & 0.41 & 0.44 & 0.51\\
+& B & 0.63 & 0.46 & 0.29 & 0.36 & 0.32\\
+Paired A $-$ B & mean & 3.0 & 6.1 & 2.6 & 1.2 & 1.4\\
+& interval & $[-0.4, 6.6]$ & $[2.5, 10.4]$ & $[1.2, 4.0]$ & $[-0.3, 3.2]$ & $[-0.1, 3.2]$\\
+\bottomrule
+\end{tabular}
+\end{table}
+Because position 0 supplies almost all of the loss, it might take training capacity away from the contextual positions. We tested this with two runs of 20,000 steps (about 86 minutes each on one GTX 1650) with the same data, seed, model code and settings (warmup scales with the budget, here 1,000 steps). \textbf{A} uses the loss of Section~\ref{sec:model} over positions 0--10; \textbf{B} drops position 0 and averages over positions 1--10. We wrote down the comparison before training (\texttt{ABLATION\_PLAN.md}): final checkpoints, compared at $c\ge1$. B's $c=0$ output is untrained and is not interpreted.
+
+B has lower validation error at each of positions 1--10 (mean $2.76$ against $3.85\times10^{-5}$, 28\% lower; Figure~\ref{fig:ablation}). On E1 its standardized MSE is lower at every $c\ge1$, by 18--52\% for $c\ge2$, with paired intervals excluding zero only at $c=2$ and $4$ (Table~\ref{tab:ablation}). As a check chosen after seeing the results, B was also lower at all 20 validation evaluations from step 10,500 on. This matters because A's error on positions 1--10 can change by more than 50\% between neighboring evaluations, and its final value happens to be its lowest. On E2, B's mean squared error is lower in all nine cell-and-$c$ combinations (they share cubes, so they are not independent tests).
+
+By our rule, \textbf{loss dominance contributes to the contextual error at this budget, but removing it does not close the gap to the reference}: B's median relative error at $c=2$--$10$ is still 0.29--0.46\%, against at most $6\times10^{-5}$\% for Bayes. We have not shown the mechanism. Dropping position 0 also changes gradient size, although clipping (norm 1) was inactive in every logged step after 10,000 in both runs. On the E2 new-force query (same minus distinct, $10^{-5}$ m$^2$), the $c=4$ contrast remains inconclusive, $0.6$ $[-2.4, 3.4]$ for A and $1.2$ $[-0.3, 2.8]$ for B; at $c=2$ it is $11$ $[-4, 37]$ and $3.6$ $[0.6, 7.3]$. Duplicates still move predictions (mean 5.0--6.4 mm for A, 2.7--3.6 mm for B). One seed at 13\% of the pilot's steps cannot show whether the difference between A and B persists with other seeds or longer training.
+
+The runs also bear on checkpoint selection: in A, validation loss over all positions selects step 18,000, whose error on positions 1--10 ($6.26\times10^{-5}$) is 63\% higher than at the final step.
+
 \section{Discussion}
-\textbf{What we learned.} (1) A small transformer trained from scratch uses push history to adapt to unseen cubes within this idealized dynamics. (2) Most of its gain comes from the first push, and an exact estimator shows that this is largely a property of the prior. (3) The transformer stops improving where the optimal estimator keeps improving by many orders of magnitude. (4) An equal-length contrast in information is clearly present for Bayes, but our current model and noise-free design cannot resolve it reliably for the transformer. (5) Average validation loss is a poor selection signal for context-dependent behavior: here it is almost all no-context error, and two checkpoints from one run disagree on a headline contrast.
+\textbf{What we learned.} (1) A small transformer trained from scratch uses push history to adapt to unseen cubes within this idealized dynamics. (2) Most of its gain comes from the first push, and an exact estimator shows that this is largely a property of the prior. (3) The transformer stops improving where the optimal estimator keeps improving by many orders of magnitude. (4) An equal-length contrast in information is clearly present for Bayes, but our current model and noise-free design cannot resolve it reliably for the transformer. (5) Average validation loss is a poor selection signal for context-dependent behavior: here it is almost all no-context error, and two checkpoints from one run disagree on a headline contrast. (6) Dropping the no-context position from the loss lowered contextual error in a short one-seed comparison but left most of the gap to the reference.
 
 \textbf{Limitations.} One training seed; 1,000 training cubes; a short run; no measurement noise; small test sets for E2--E4; idealized 1D dynamics that match the analytic reference by construction; structured test contexts that differ from random training contexts; no hyperparameter search. Nothing here supports claims about real contact, real robots or language models.
 
@@ -245,11 +272,9 @@ On heavy cubes the transformer still gains from context (544\% to 2.3\%, Table~\
 
 \inprog{\textbf{Selection metric.} Select checkpoints on the mean loss over positions 1--10, decided before looking at test results, and report both rules.}
 
-\inprog{\textbf{Plateau diagnosis}, one change at a time against the pilot: (a) reweight positions or predict a log target; (b) ten times more training cubes; (c) longer training; (d) full-precision matrix multiplication. A change that lowers the error at $c\ge2$ identifies a cause.}
+\inprog{\textbf{Plateau diagnosis}, one change at a time against the pilot: (a) repeat the position-0 ablation over seeds and at the full budget, and try predicting a log target; (b) ten times more training cubes; (c) longer training; (d) full-precision matrix multiplication. A change that lowers the error at $c\ge2$ identifies a cause.}
 
-\inprog{\textbf{Measurement noise} ($\sigma_d\approx0.048$ m, 5\% of the median training displacement), retraining per noise level. Compare fresh repeats against exact copies at equal length: an information-using predictor should improve with fresh repeats and not with copies. We expect noise to raise Bayes' error toward the transformer's range, making E2 discriminative, but this is untested. The Bayes code has the $\sigma_d$ term, but its predictor fixes $\sigma_d=0$, so it must be exposed and re-validated first.}
-
-\inprog{\textbf{If time permits:} a wider prior so that one push is less decisive; E2 and E3 on heavy cubes; other out-of-range directions.}
+\inprog{\textbf{Measurement noise} ($\sigma_d\approx0.048$ m, 5\% of the median training displacement), retraining per noise level, with fresh repeats compared against exact copies at equal length. We expect noise to raise Bayes' error toward the transformer's range and make E2 discriminative; this is untested. The Bayes predictor currently fixes $\sigma_d=0$, so its noise term must be exposed and re-validated. \textbf{If time permits:} a wider prior; E2 and E3 on heavy cubes; other out-of-range directions.}
 
 \clearpage
 \begin{thebibliography}{99}\small
@@ -364,8 +389,17 @@ D distinct, new & 2 / 4 & 1.9 / 2.5 $\times10^{-5}$ & $1.2\times10^{-10}$ / $2.0
 \end{table}
 Using the final instead of the selected checkpoint changes E1 MSE at $c\ge1$ by roughly 1--18\%, in both directions; the heavy-cube median relative error at $c=10$ is 2.1\% and the E3 mean prediction shifts are 3.5, 2.5 and 3.4 mm.
 
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.62\linewidth]{figures/fig_per_position.pdf}
+\caption{Validation standardized MSE at each of the 11 prediction positions for the selected and final checkpoints, on 1,000 fixed validation sequences. Logarithmic axis: position 0 is four orders of magnitude above the rest.}
+\label{fig:perpos}
+\end{figure}
+
 \section{Reproducing the figures and tables}\label{app:repro}
-The repository README for \texttt{report/v1} gives the commands. \texttt{scripts/make\_report\_figures.py} regenerates Figures~\ref{fig:train}--\ref{fig:e3e4} from the pilot's training log and result tables, and \texttt{scripts/make\_report\_tables.py} prints every result table and the quoted result numbers from the same tables.
+The repository README for \texttt{report/v1} gives the commands. \texttt{scripts/make\_report\_figures.py} regenerates all result plots from the committed training logs and result tables, and \texttt{scripts/make\_report\_tables.py} prints every result table and the quoted result numbers from the same tables.
+
+\textbf{Ablation.} \texttt{scripts/train.py} with \texttt{--steps 20000 --eval-every 500} and \texttt{--loss-first-pos 0} (A) or \texttt{1} (B) trains the runs of Section~\ref{sec:ablation}. \texttt{results/ablation/} holds their logs, configurations, E1--E4 tables and the paired comparison written by \texttt{scripts/compare\_ablation.py}. Final checkpoint SHA-256: A \texttt{aa1ea2a6...6172}, B \texttt{255c2166...a6a4}.
 
 \textbf{Independent rerun.} On a second machine (a Windows laptop running Linux through WSL; same MuJoCo 4.0.1, PyTorch 2.6 instead of 2.14) we (i) regenerated the pilot dataset, whose seven content hashes and combined hash match the pilot's; (ii) checked that the two pilot checkpoint files have the SHA-256 values recorded on the day of the pilot; (iii) re-evaluated both checkpoints' validation loss, which matches the logged value to within $2\times10^{-7}$; and (iv) reran E1--E4 for both. In all 12 result tables per checkpoint, reference-estimator values are identical and transformer values differ by at most $0.11\%$ in relative terms (\texttt{scripts/compare\_results.py}). This verifies that the saved results follow from the saved checkpoints and code. It is not an independent check of the experimental design, and it did not retrain the 150,000-step model.
 

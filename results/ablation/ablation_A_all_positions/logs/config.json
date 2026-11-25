@@ -1,0 +1,50 @@
+{
+  "dataset": "/home/davidj24/cs182-data/datasets/pilot_v1",
+  "dataset_version": "pilot_v1",
+  "dataset_files_sha256": {
+    "train": "0844572469962cf95f43e0bf929e8e8eeee74f4ab2e7e1a92e69c9f278ebfc3c",
+    "val": "6f8f211f5a9e85edd077bc4e5b9326a9cf83e57c580cfec0ecc9930754ca960b"
+  },
+  "dataset_meta": "pilot_v1",
+  "steps": 20000,
+  "seed": 0,
+  "noise": 0.0,
+  "batch": 256,
+  "lr": 0.0001,
+  "weight_decay": 0.01,
+  "warmup_steps": 1000,
+  "schedule": "linear warmup + cosine to 0",
+  "loss_first_pos": 0,
+  "eval_every": 500,
+  "max_seconds": null,
+  "model": {
+    "n_layer": 12,
+    "n_embd": 256,
+    "n_head": 8,
+    "seq_len": 22,
+    "token_dim": 5
+  },
+  "params": 9485057,
+  "source_git": {
+    "sha": "09a7350c38b17de54f84c217b7c05e534bb9deb3",
+    "dirty": false
+  },
+  "argv": [
+    "scripts/train.py",
+    "--dataset",
+    "/home/davidj24/cs182-data/datasets/pilot_v1",
+    "--steps",
+    "20000",
+    "--seed",
+    "0",
+    "--noise",
+    "0",
+    "--eval-every",
+    "500",
+    "--loss-first-pos",
+    "0",
+    "--run-id",
+    "ablation_A_all_positions"
+  ],
+  "cmd_config_sha256": "9cf49c9c6810fa5d9277ce2cf41cc7b924ebd5c246e77ab10e32b061905b8c38"
+}

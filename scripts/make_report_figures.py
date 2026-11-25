@@ -2,8 +2,8 @@
 
     uv run python scripts/make_report_figures.py            # or: python scripts/make_report_figures.py
 
-Reads only results/pilot_v1/ (CSVs written by the pilot evaluation and the pilot's training log)
-and writes report/v1/figures/. No model, GPU or dataset is needed. Error bars are the `se`
+Reads only results/pilot_v1/ (CSVs written by the pilot evaluation and the pilot's training log) and
+results/ablation/ (the loss-weighting ablation), and writes report/v1/figures/. No model, GPU or dataset is needed. Error bars are the `se`
 column: one standard error over test cubes for a single trained model (not over training seeds).
 """
 
@@ -175,14 +175,37 @@ def fig_training():
     save(fig, "fig_training.pdf")
 
 
+def fig_ablation():
+    rows = read(REPO / "results" / "ablation" / "val_per_position.csv")
+    fig, ax = plt.subplots(1, 2, figsize=(7.0, 2.1))
+    for run, color, label in (("A", "#c0392b", "A: loss on positions 0-10"), ("B", "#7b5ea7", "B: loss on positions 1-10")):
+        mine = [r for r in rows if r["run"] == run]
+        ax[0].plot([int(r["step"]) for r in mine], [float(r["val_loss_positions_1_to_10"]) for r in mine],
+                   color=color, lw=1.1, label=label)
+        ax[1].plot(range(1, 11), [float(mine[-1][f"pos{i}"]) for i in range(1, 11)], color=color, marker="o", ms=3,
+                   lw=1.2, label=label)
+    ax[0].set_xlabel("training step")
+    ax[0].set_ylabel("val. std. MSE, positions 1-10 (log)")
+    ax[0].set_xticks(range(0, 20001, 5000))
+    ax[1].set_xlabel("position (final checkpoints)")
+    ax[1].set_ylabel("validation std. MSE (linear)")
+    ax[1].set_xticks(range(1, 11))
+    ax[1].set_ylim(bottom=0)
+    ax[0].set_yscale("log")
+    for a in ax:
+        a.grid(alpha=0.25)
+    ax[1].legend(fontsize=6)
+    save(fig, "fig_ablation.pdf")
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     fig_e1()
     fig_e2()
     fig_e3_e4()
     fig_per_position()
-    # The training curve was plotted on the training machine from its metrics log, which is not committed.
     fig_training()
+    fig_ablation()
     print("wrote", ", ".join(sorted(p.name for p in OUT.iterdir())))
 
 
